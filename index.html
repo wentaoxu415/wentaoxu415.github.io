@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="Wentao Xu" content="">
+  <title>San Francisco Crime Map</title>
+
+  <!-- Third-Party Stylesheets -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" type="text/css"> 
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" type="text/css">
+  <link rel="stylesheet" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" type="text/css"  />
+
+  <!-- Personal Stylesheets -->
+  <link rel="stylesheet" href="css/customized.css">
+
+  <!-- Third-Party Libraries -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+  <script src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+<!-- Go to www.addthis.com/dashboard to customize your tools -->
+<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-560a427f4f89f17f" async="async"></script>
+
+
+
+</head>
+
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-static-top" role="navigation">
+  <div class="container">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">San Francisco Crime Map</a>
+    </div>   
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav pull-right">
+        <li><a href="#">Map</a></li>
+        <li><a href="#">Stories</a></li>
+        <li><a href="#">About</a></li>
+      </ul>
+    </div>    
+  </div>
+    <!-- /.container -->
+</nav>
+
+<div class="container">
+  <div class="col-xs-2" id="menu">
+      <div class="panel panel-default">
+        <div class="panel-heading">Crime Types</div>
+        <ul class="list-group">
+          <li class="list-group-item" id="color_assault">
+              Assault
+              <div class="material-switch pull-right">
+                  <input id="switch_option_assault" name="switch_option_assault" type="checkbox"/>
+                  <label for="switch_option_assault" class="label-default"></label>
+              </div>
+          </li>
+          <li class="list-group-item" id="color_burglary">
+              Burglary
+              <div class="material-switch pull-right">
+                  <input id="switch_option_burglary" name="switch_option_burglary" type="checkbox"/>
+                  <label for="switch_option_burglary" class="label-default"></label>
+              </div>
+          </li>
+          <li class="list-group-item" id="color_drug">
+              Drug
+              <div class="material-switch pull-right">
+                  <input id="switch_option_drug" name="switch_option_drug" type="checkbox"/>
+                  <label for="switch_option_drug" class="label-default"></label>
+              </div>
+          </li>
+          <li class="list-group-item" id="color_homicide">
+              Homicide
+              <div class="material-switch pull-right">
+                  <input id="switch_option_homicide" name="switch_option_homicide" type="checkbox"/>
+                  <label for="switch_option_homicide" class="label-default"></label>
+              </div>
+          </li>
+          <li class="list-group-item" id="color_robbery">
+              Robbery
+              <div class="material-switch pull-right">
+                  <input id="switch_option_robbery" name="switch_option_robbery" type="checkbox"/>
+                  <label for="switch_option_robbery" class="label-default"></label>
+              </div>
+          </li>
+          <li class="list-group-item" id="color_sexOffense">
+              Sex Offenses
+              <div class="material-switch pull-right">
+                  <input id="switch_option_sexOffense" name="switch_option_sexOffense" type="checkbox"/>
+                  <label for="switch_option_sexOffense" class="label-default"></label>
+              </div>
+          </li>
+          <li class="list-group-item" id="color_weaponLaw">
+              Weapon Law
+              <div class="material-switch pull-right">
+                  <input id="switch_option_weaponLaw" name="switch_option_weaponLaw" type="checkbox"/>
+                  <label for="switch_option_weaponLaw" class="label-default"></label>
+              </div>
+          </li>
+        </ul>
+    </div>
+  </div>
+  <div class="col-xs-7" id="map">
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <div class="addthis_sharing_toolbox" id="share_buttons"></div>
+  </div>
+  <div class="col-xs-3" id="charts">
+    <div class="row chart_dimension" id="infographic">
+    Infographic
+    </div>
+    <div class="row chart_dimension" id="bar_chart">
+    Bar Chart
+    </div>
+    <div class="row chart_dimension" id="timeline">
+    Timeline
+    </div>
+  </div>
+</div>
+
+<script>
+function test(){
+  console.log("hey")
+}
+
+//Load the data
+queue()
+.defer(d3.json, "data/sf-neighborhoods.json")
+.defer(d3.json, "data/homicide.min.json")
+.defer(d3.json, "data/sexOffense.min.json")
+.defer(d3.json, "data/population.json")
+.await(test);
+</script>
+</body>
+
+</html>
