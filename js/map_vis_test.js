@@ -23,7 +23,6 @@ MapVis.prototype.initVis = function(){
      accessToken: 'pk.eyJ1Ijoid2VudGFveHUiLCJhIjoiY2llbjNtdW13MDVmMHJza20wY3B0ZnFoaCJ9.bCIlhzQz6O58tT9s0_z2Mw',
      minZoom: 11
   }).addTo(this.map);
-
   this.svg = d3.select(this.map.getPanes().overlayPane).append("this.svg")
   this.g = this.svg.append("this.g").attr("class", "leaflet-zoom-hide");
 
@@ -47,7 +46,6 @@ MapVis.prototype.addFeatures = function(){
     var bounds = path.bounds(that.geography),
       topLeft = bounds[0];
       bottomRight = bounds[1];
-  console.log(bounds);
     that.svg.attr("width", bottomRight[0] - topLeft[0])
       .attr("height", bottomRight[1] - topLeft[1])
       .style("left", topLeft[0] + "px")
@@ -126,7 +124,15 @@ MapVis.prototype.addFeatures = function(){
   for (var key in stateMap.crimeType){
     that.displayLayers[key] = L.geoJson(that.filteredData[key], {
       pointToLayer: function(feature, latlng){
-        return L.circle(latlng, 40, {className: key});
+        var content = "<span><b>Incident ID:</b> " + feature.id + "</span> <br>\
+        <span><b>Crime Type:</b> " + feature.properties.crime +"</span> <br>\
+        <span><b>Date:</b> " + feature.properties.date +"</span> <br>\
+        <span><b>Day of Week:</b> " + feature.properties.dow +"</span> <br>\
+        <span><b>Time:</b> " + feature.properties.time +"</span> <br>"
+
+        var one_circle = L.circle(latlng, 40, {className: key})
+                          .bindPopup(content);
+        return one_circle
       }
     })
   }
@@ -164,11 +170,15 @@ MapVis.prototype.countCrimes = function(){
 
 MapVis.prototype.updateLayer = function(bool, crime){
   var that = this;
+
   if (bool){
-    that.map.addLayer(that.displayLayers[crime]);
+    that.map.addLayer(that.displayLayers[crime])
+        .on('ready', that.map.spin(false));
   }
   else{
-    that.map.removeLayer(that.displayLayers[crime]);
+    that.map.removeLayer(that.displayLayers[crime])
+        .on('ready', that.map.spin(false));
   }
   that.countCrimes()
 }
+

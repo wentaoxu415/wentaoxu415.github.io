@@ -48,5 +48,13 @@ MapVis.prototype.initVis = function(){
     g.attr("transform", "translate(" + (-this.topLeft[0]) + "," + (-this.topLeft[1]) + ")");
     this.feature.attr("d", this.path);
   }
-
+  
+  $(".switch_option").click(function(e){
+    var is_checked, crime_type;
+    is_checked = e.currentTarget.checked;
+    crime_type = e.currentTarget.name;
+    stateMap.crimeType[crime_type] = is_checked;
+    map_vis.updateLayer(is_checked, crime_type);
+  })  
+  
 }
