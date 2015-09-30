@@ -94,7 +94,7 @@ MapVis.prototype.addFeatures = function(){
     val > 1.00  ? '#4292c6' :
     val > 0.75  ? '#6baed6' :
     val > 0.50  ? '#9ecae1' :
-    val > 0.25  ? '#c6dbef' : '#deebf7';
+    val > 0.25  ? '#c6dbef' : '#dee';
   }
 
   function style(feature){
@@ -126,7 +126,7 @@ MapVis.prototype.addFeatures = function(){
   for (var key in stateMap.crimeType){
     that.displayLayers[key] = L.geoJson(that.filteredData[key], {
       pointToLayer: function(feature, latlng){
-        return L.circle(latlng, 30, {className: key});
+        return L.circle(latlng, 40, {className: key});
       }
     })
   }
@@ -160,4 +160,15 @@ MapVis.prototype.countCrimes = function(){
       })
       }
     }
+}
+
+MapVis.prototype.updateLayer = function(bool, crime){
+  var that = this;
+  if (bool){
+    that.map.addLayer(that.displayLayers[crime]);
+  }
+  else{
+    that.map.removeLayer(that.displayLayers[crime]);
+  }
+  that.countCrimes()
 }

@@ -66,49 +66,49 @@
           <li class="list-group-item" id="color_assault">
               Assault
               <div class="material-switch pull-right">
-                  <input id="switch_option_assault" name="switch_option_assault" type="checkbox"/>
+                  <input class="switch_option" id="switch_option_assault" name="assault" type="checkbox"/>
                   <label for="switch_option_assault" class="label-default"></label>
               </div>
           </li>
           <li class="list-group-item" id="color_burglary">
               Burglary
               <div class="material-switch pull-right">
-                  <input id="switch_option_burglary" name="switch_option_burglary" type="checkbox"/>
+                  <input class="switch_option" id="switch_option_burglary" name="burglary" type="checkbox"/>
                   <label for="switch_option_burglary" class="label-default"></label>
               </div>
           </li>
           <li class="list-group-item" id="color_drug">
               Drug
               <div class="material-switch pull-right">
-                  <input id="switch_option_drug" name="switch_option_drug" type="checkbox"/>
+                  <input class="switch_option" id="switch_option_drug" name="drug" type="checkbox"/>
                   <label for="switch_option_drug" class="label-default"></label>
               </div>
           </li>
           <li class="list-group-item" id="color_homicide">
               Homicide
               <div class="material-switch pull-right">
-                  <input id="switch_option_homicide" name="switch_option_homicide" type="checkbox" checked/>
+                  <input class="switch_option" id="switch_option_homicide" name="homicide" type="checkbox" checked/>
                   <label for="switch_option_homicide" class="label-default"></label>
               </div>
           </li>
           <li class="list-group-item" id="color_robbery">
               Robbery
               <div class="material-switch pull-right">
-                  <input id="switch_option_robbery" name="switch_option_robbery" type="checkbox"/>
+                  <input class="switch_option" id="switch_option_robbery" name="robbery" type="checkbox"/>
                   <label for="switch_option_robbery" class="label-default"></label>
               </div>
           </li>
           <li class="list-group-item" id="color_sexOffense">
               Sex Offenses
               <div class="material-switch pull-right">
-                  <input id="switch_option_sexOffense" name="switch_option_sexOffense" type="checkbox"/>
+                  <input class="switch_option" id="switch_option_sexOffense" name="sexOffense" type="checkbox"/>
                   <label for="switch_option_sexOffense" class="label-default"></label>
               </div>
           </li>
           <li class="list-group-item" id="color_weaponLaw">
               Weapon Law
               <div class="material-switch pull-right">
-                  <input id="switch_option_weaponLaw" name="switch_option_weaponLaw" type="checkbox"/>
+                  <input class="switch_option" id="switch_option_weaponLaw" name="weaponLaw" type="checkbox"/>
                   <label for="switch_option_weaponLaw" class="label-default"></label>
               </div>
           </li>
@@ -172,14 +172,22 @@ function initModule(error, geography, population, homicide, sexOffense){
   }
 
   event_handler = new Object();
-  map_vis = new MapVis(d3.select("#map"), geographyData, populationData, originalData, stateMap, event_handler);
+  map_vis = new MapVis(d3.select("#map"), geographyData, populationData, 
+  originalData, stateMap, event_handler);
   // info_vis = new InfoVis(d3.select("info_graphic"), populationData, originalData, stateMap);
   // bar_vis = new BarVis(d3.select("bar_chart"), populationData, originalData, stateMap);
   // line_vis = new LineVis(d3.select("line_chart"), populationData, originalData, stateMap);
 
-  $(event_handler).bind("selectionChanged", function(event, object, object2){
-    map_vis.onSelectionChange(object);
-  })
+  
+  $(".switch_option").click(function(e){
+    var is_checked, crime_type;
+    is_checked = e.currentTarget.checked;
+    crime_type = e.currentTarget.name;
+    stateMap.crimeType[crime_type] = is_checked;
+    map_vis.updateLayer(is_checked, crime_type);
+  })  
+  
+
 }; 
 
 //Load the data
