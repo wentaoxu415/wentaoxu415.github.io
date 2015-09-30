@@ -25,10 +25,10 @@
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
   <script src="http://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
   <script src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
-<!-- Go to www.addthis.com/dashboard to customize your tools -->
-<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-560a427f4f89f17f" async="async"></script>
+  <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-560a427f4f89f17f" type="text/javascript" async="async"></script>
 
-
+  <!-- Personal Libraries -->
+  <script src="js/map_vis_test.js" type="text/javascript"></script>
 
 </head>
 
@@ -58,9 +58,9 @@
     <!-- /.container -->
 </nav>
 
-<div class="container">
+<div class="container" id="app">
   <div class="col-xs-2" id="menu">
-      <div class="panel panel-default">
+      <div class="panel panel-default checkboxes">
         <div class="panel-heading">Crime Types</div>
         <ul class="list-group">
           <li class="list-group-item" id="color_assault">
@@ -87,7 +87,7 @@
           <li class="list-group-item" id="color_homicide">
               Homicide
               <div class="material-switch pull-right">
-                  <input id="switch_option_homicide" name="switch_option_homicide" type="checkbox"/>
+                  <input id="switch_option_homicide" name="switch_option_homicide" type="checkbox" checked/>
                   <label for="switch_option_homicide" class="label-default"></label>
               </div>
           </li>
@@ -133,17 +133,63 @@
 </div>
 
 <script>
-function test(){
-  console.log("hey")
-}
+$(function(){
+  var geographyData,
+  populationData;
+  originalData = {
+    homicide: null,
+    sexOffense: null
+  },
+  stateMap = {
+    crimeType: {
+      assault: false,
+      burglary: false,
+      drug: false,
+      homicide: true,
+      robbery: false,
+      sexOffense: false,
+      weaponLaw: false               
+    },
+    startDate: '2003/01/01',
+    endDate: '2015/08/31',
+    startTime: '12:00 AM',
+    endTime: '11:59 PM',
+    location: 'city'
+  };
+
+function initModule(error, geography, population, homicide, sexOffense){
+  var event_handler, map_vis, info_vis, 
+  bar_vis, line_vis;
+
+  if(error){
+    throw error;
+  }
+  else{
+    geographyData = geography;
+    populationData = population;
+    originalData['homicide'] = homicide;
+    originalData['sexOffense'] = sexOffense
+  }
+
+  event_handler = new Object();
+  map_vis = new MapVis(d3.select("#map"), geographyData, populationData, originalData, stateMap, event_handler);
+  // info_vis = new InfoVis(d3.select("info_graphic"), populationData, originalData, stateMap);
+  // bar_vis = new BarVis(d3.select("bar_chart"), populationData, originalData, stateMap);
+  // line_vis = new LineVis(d3.select("line_chart"), populationData, originalData, stateMap);
+
+  $(event_handler).bind("selectionChanged", function(event, object, object2){
+    map_vis.onSelectionChange(object);
+  })
+}; 
 
 //Load the data
 queue()
-.defer(d3.json, "data/sf-neighborhoods.min.json")
+.defer(d3.json, "data/sf-neighborhoods.json")
+.defer(d3.json, "data/population.json")
 .defer(d3.json, "data/homicide.min.json")
 .defer(d3.json, "data/sexOffense.min.json")
-.defer(d3.json, "data/population.json")
-.await(test);
+.await(initModule);
+});
 </script>
 </body>
 

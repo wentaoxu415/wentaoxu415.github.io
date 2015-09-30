@@ -144,9 +144,9 @@ svg {
 
 path {
 /*  fill: #000;*/
-  fill-opacity: .5;
-  stroke: #fff;
-  stroke-width: 1px;
+  fill-opacity: .7;
+  stroke: #000;
+  stroke-width: 0.5px;
 }
 
 path:hover {
@@ -274,7 +274,6 @@ path:hover {
   top: 50px;
   bottom:0px;
   left: 16.666667%;
-  background-color: #ddd;
 }
 
 #charts{
