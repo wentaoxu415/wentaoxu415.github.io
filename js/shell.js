@@ -147,6 +147,13 @@ shell = (function(){
 
   //-------------------- BEGIN PUBLIC METHODS --------------------------------  
   initModule = function($container){
+    stateMap.$container = $container;
+    $container.html(configMap.main_html);
+    setJqueryMap();
+
+    // Initialize 
+    jqueryMap.$
+
     // Configure uriAnchor to use our schema
     $.uriAnchor.configModule({
       schema_map : configMap.anchor_schema_map

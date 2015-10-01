@@ -55,6 +55,7 @@ MapVis.prototype.initVis = function(){
     crime_type = e.currentTarget.name;
     stateMap.crimeType[crime_type] = is_checked;
     map_vis.updateLayer(is_checked, crime_type);
+    console.log("hey");
   })  
   
 }

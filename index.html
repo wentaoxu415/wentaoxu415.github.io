@@ -12,7 +12,8 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" type="text/css"> 
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" type="text/css">
   <link rel="stylesheet" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" type="text/css"  />
-
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  
   <!-- Personal Stylesheets -->
   <link rel="stylesheet" href="css/customized.css">
 
@@ -29,8 +30,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js" type="text/javascript"></script>
   <!-- Personal Libraries -->
   <script src="js/libs/leaflet.spin.js" type="text/javascript"></script>
+  <script src="js/libs/l.control.geosearch.js" type="text/javascript"></script>
+  <script src="js/libs/l.geosearch.provider.google.js" type="text/javascript"></script>
+  <script src="js/libs/easybutton.js" type="text/javascript"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js" type="text/javascript"></script>
   <script src="js/map_vis_test.js" type="text/javascript"></script>
 
+  <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
 </head>
 
 <body>
@@ -61,8 +67,8 @@
 
 <div class="container" id="app">
   <div class="col-xs-2" id="menu">
-      <div class="panel panel-default checkboxes">
-        <div class="panel-heading">Crime Types</div>
+    <div class="panel panel-default checkboxes">
+      <div class="panel-heading">Crime Types</div>
         <ul class="list-group">
           <li class="list-group-item" id="color_assault">
               Assault
@@ -115,10 +121,17 @@
           </li>
         </ul>
     </div>
+    <paper-checkbox><div id="label">label</div></paper-checkbox>
+    <div class="row category"><span><b>Date Range</b></span>
+      <input class="datepicker" type="text" name="daterange" value="01/01/2015 - 01/31/2015" />
+    </div>
+    <div class="row category"><span><b>Time Range</b></span>
+      <input class="datepicker" type="text" name="timerange" value="01/01/2015 0:00 AM  - 01/01/2015 11:59 PM" />
+    </div>
+    <div class="row category"><div class="addthis_sharing_toolbox" id="share_buttons"></div></div>
   </div>
   <div class="col-xs-7" id="map">
     <!-- Go to www.addthis.com/dashboard to customize your tools -->
-    <div class="addthis_sharing_toolbox" id="share_buttons"></div>
   </div>
   <div class="col-xs-3" id="charts">
     <div class="row chart_dimension" id="infographic">
@@ -135,28 +148,61 @@
 
 <script>
 $(function(){
-  var geographyData,
+/*---------------------------BEGIN MODULE VARIABLES-------------------------*/
+  var map_vis, geographyData,
   populationData;
   originalData = {
-    homicide: null,
-    sexOffense: null
+    homicide: null, sexOffense: null
   },
   stateMap = {
     crimeType: {
-      assault: false,
-      burglary: false,
-      drug: false,
-      homicide: true,
-      robbery: false,
-      sexOffense: false,
-      weaponLaw: false               
+      assault: false, burglary: false, drug: false, homicide: true,
+      robbery: false, sexOffense: false, weaponLaw: false               
     },
-    startDate: '2003/01/01',
-    endDate: '2015/08/31',
-    startTime: '12:00 AM',
-    endTime: '11:59 PM',
+    startDate: '01/01/2013', endDate: '08/31/2015',
+    startTime: '12:00', endTime: '23:59',
     location: 'city'
   };
+
+/*---------------------------END MODULE VARIABLES---------------------------*/
+
+/*---------------------------BEGIN HELPER METHODS-------------------------*/ 
+  
+
+
+  // Takes in a date and returns "Year/Month/Day" format
+  getDate = d3.time.format("%Y/%m/%d");
+
+  // Takes in a date and returns only the Year
+  getYear = d3.time.format("%Y");
+
+  // Takes in a date and returns "Month, Year" format
+  getMonth = d3.time.format("%b, %Y");
+
+  // Parses the date in string form and convers into time format
+  parseTime = d3.time.format("%H:%M").parse;
+
+  // Takes in a time and returns military time
+  getTime = d3.time.format("%H:%M");
+
+  // Takes in a time and returns only the Hour
+  getHour = d3.time.format("%H");
+
+  // Purpose: 
+  //  * To update both start and end dates in stateMap based on users' 
+  // selection from the date range picker. 
+  // Arguments: 
+  //  * start_date (MM/DD/YYYY)
+  //  * end_date (MM/DD/YYYY)
+  // Returns: 
+  // * New dates in the stateMap.startDate and stateMap.endDate
+  function updateDate(start_date, end_date){
+    stateMap.startDate = start_date;
+    stateMap.endDate = end_date;
+  }
+/*---------------------------END HELPER METHODS---------------------------*/
+
+/*---------------------------BEGIN PUBLIC METHODS---------------------------*/
 
 function initModule(error, geography, population, homicide, sexOffense){
   var event_handler, map_vis, info_vis, 
@@ -180,17 +226,68 @@ function initModule(error, geography, population, homicide, sexOffense){
   // line_vis = new LineVis(d3.select("line_chart"), populationData, originalData, stateMap);
 
   
+  /*---------------------------BEGIN EVENT HANDLERS---------------------------*/ 
   $(".switch_option").click(function(e){
     var is_checked, crime_type;
     is_checked = e.currentTarget.checked;
     crime_type = e.currentTarget.name;
     stateMap.crimeType[crime_type] = is_checked;
     map_vis.map.spin(true);
-    setTimeout(function(){map_vis.updateLayer(is_checked, crime_type);}, 10);
-  })  
+    setTimeout(function(){map_vis.updateCrimeTypes(is_checked, crime_type);}, 50);
+  })
+
+  // Initializes the daterange values and calls updateData function upon change
+  $(function() {
+    $('input[name="daterange"]').daterangepicker({
+      autoApply: true,
+      linkedCalendars: false,
+      startDate: "01/01/2003",
+      endDate: "08/31/2015",
+      minDate: "01/01/2003",
+      maxDate: "08/31/2015"
+      }, 
+      function(_start_date, _end_date) {
+        var start_date = _start_date.format('MM/DD/YYYY'), 
+        end_date = _end_date.format('MM/DD/YYYY');
+        updateDate(start_date, end_date);
+        map_vis.updateDateAndTime(start_date, end_date, stateMap.startTime, stateMap.endTime);
+    });
+  });
+
+  $(function() {
+  $('input[name="timerange"]').daterangepicker({
+    timePicker: true,
+    timePickerIncrement: 1,
+    autoApply: true,
+    locale: {
+      format: 'hh:mm A'
+    },
+    ranges: {
+      "All Day": ["12:00 AM","11:59 PM"],
+      "Morning":["06:00 AM","11:59 AM"],
+      "Afternoon":["12:00 PM","05:59 PM"],
+      "Evening":["06:00 PM","11:59 PM"],
+      "Late Night":["12:00 AM","05:59 AM"]
+    },
+    startDate: "12:00 AM", endDate: "11:59 PM",
+    minDate: "12:00 AM", maxDate: "11:59 PM"
+    },
+    function(_start_time, _end_time){
+      var start_time = new Date(_start_time);
+      var end_time = new Date(_end_time);
+      start_time = getTime(parseTime(start_time.getHours()+":"+start_time.getMinutes()))
+      end_time = getTime(parseTime(end_time.getHours()+":"+end_time.getMinutes()))
+      map_vis.updateDateAndTime(stateMap.startDate, stateMap.endDate, start_time, end_time);
+      // timeRange[0] = formatHour(parseHour(start_time.getHours()+":"+start_time.getMinutes()));
+      // timeRange[1] = formatHour(parseHour(end_time.getHours()+":"+end_time.getMinutes()));
+      // updateData(dateRange, timeRange);
+    });
+  });
+
+/*---------------------------END EVENT HANDLERS-----------------------------*/  
   
 }; 
-
+/*---------------------------END PUBLIC METHODS-----------------------------*/
 //Load the data
 queue()
 .defer(d3.json, "data/sf-neighborhoods.json")
