@@ -158,9 +158,9 @@ path:hover {
 }
 
 .homicide{
-  fill: #49006a;
+  fill: #bc80bd;
   fill-opacity: .5;
-  stroke: #49006a;
+  stroke: #bc80bd;
   stroke-width: 0.5px;
 }
 
@@ -170,9 +170,9 @@ path:hover {
 }
 
 .sexOffense{
-  fill: #f781bf;
+  fill: #bebada;
   fill-opacity: .2;
-  stroke: #f781bf;
+  stroke: #bebada;
   stroke-width: 0.5px;
 }
 
@@ -283,7 +283,6 @@ path:hover {
   top: 50px;
   bottom:0px;
   left: 75%;
-  background-color: #ccc;
   padding-right: 0px;
   padding-left: 0px;
 }
@@ -338,20 +337,20 @@ path:hover {
     left: 20px;
 }
 
-#color_assault{
-  background: #8dd3c7;
+/*#color_assault{
+  background: #683997; 
 }
 
 #color_burglary{
-  background: #ffffb3;
+  background: #bebada; 
 }
 
 #color_drug{
-  background: #bebada;
+  background: #ffffb3;
 }
 
 #color_homicide{
-  background: #683997;
+  background: #8dd3c7;
 }
 
 #color_robbery{
@@ -359,13 +358,40 @@ path:hover {
 }
 
 #color_sexOffense{
+  background: #fdb462;
+}
+
+#color_weaponLaw{
   background: #f781bf;
+}*/
+
+#color_assault{
+  background: #bc80bd; 
+}
+
+#color_burglary{
+  background: #bebada; 
+}
+
+#color_drug{
+  background: #fccde5;
+}
+
+#color_homicide{
+  background: #ffffb3;
+}
+
+#color_robbery{
+  background: #8dd3c7;
+}
+
+#color_sexOffense{
+  background: #b3de69;
 }
 
 #color_weaponLaw{
   background: #fdb462;
 }
-
 .chart_dimension{
   width: 100%;
   height: 33.3333%;
@@ -509,11 +535,16 @@ paper-checkbox {
     --paper-checkbox-checked-ink-color: #009688;
   }
 
-#label{
-  background-color: pink;
-  width: 100px;
+#homicide_label{
+  background-color: #8da0cb;
+  width: 120px;
   padding-left: 10px;
+}
 
+#sexOffense_label{
+  background-color: #e78ac3 ;
+  width: 120px;
+  padding-left: 10px;
 }
 
 #donut_chart{
@@ -522,11 +553,16 @@ paper-checkbox {
 }
 
 #donut_location{
+  padding-top: 5px;
+  padding-left: 5px;
   height: 20%;
+  font-size: 20px;
+
 }
 
 .row .donut{
   font-size: 12px;
+  padding-left: 5px;
 }
 
 .legend_donut{
@@ -550,6 +586,24 @@ paper-checkbox {
 
 .label_donut{
   font-color: #000;
+}
+
+.donut{
+  fill-opacity: .5;
+  stroke: #fff;
+  stroke-width: 0px;
+}
+
+.side_tabs{
+  height: 20%;
+}
+
+.graph_tabs{
+  font-size: 12px;
+}
+
+.graph_area{
+  height: 80%;
 }
 
 

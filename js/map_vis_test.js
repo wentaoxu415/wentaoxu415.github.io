@@ -52,8 +52,9 @@ MapVis.prototype.countCrimes = function(){
 /*-------------------------BEGIN UPDATE METHODS-----------------------------*/
 
 
-MapVis.prototype.updateCrimeTypes = function(bool, crime){
+MapVis.prototype.updateCrimeTypes = function(bool, crime, state_map){
   var that = this;
+  this.stateMap = state_map
   if (bool){
     that.map.addLayer(that.displayLayers[crime])
         .on('ready', that.map.spin(false));
@@ -62,6 +63,7 @@ MapVis.prototype.updateCrimeTypes = function(bool, crime){
     that.map.removeLayer(that.displayLayers[crime])
         .on('ready', that.map.spin(false));
   }
+  $(that.eventHandler).trigger("typeChanged", that.stateMap);
   that.countCrimes();
 
   function updateStyle(feature){
@@ -171,6 +173,7 @@ L.easyButton('fa-comment',
 
   L.easyButton('fa-home', function(btn){
     that.map.setView([home.lat, home.lng], home.zoom);
+    $(that.eventHandler).trigger("locationChanged", 'city')
   },'Zoom To Home').addTo(that.map);
   
 

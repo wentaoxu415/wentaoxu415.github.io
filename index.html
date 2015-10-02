@@ -123,7 +123,10 @@
           </li>
         </ul>
     </div>
-    <paper-checkbox><div id="label">label</div></paper-checkbox>
+    <ul class="list-group category">
+    <paper-checkbox class='paper_switch' name='homicide' checked><div id="homicide_label">Homicide</div></paper-checkbox>
+    <paper-checkbox class='paper_switch' name='sexOffense'><div id="sexOffense_label">Sex Offense</div></paper-checkbox>
+    </ul>
     <div class="row category"><span><b>Date Range</b></span>
       <input class="datepicker" type="text" name="daterange" value="01/01/2015 - 01/31/2015" />
     </div>
@@ -138,34 +141,41 @@
   <div class="col-xs-3" id="charts">
     <div class="row chart_dimension" id="donut_vis">
       <div class="col-xs-12" id="donut_location">
-        San Francisco
-        <span id="location_span"></span>
-        </div>
+      </div>
       <div class="col-xs-5" id='donut_info'>
         <div class="row donut">
-        <b>Population: </b>
+        <b>Population </b>
         </div>
         <div class="row donut" id="donut_population">
         </div>  
         <div class="row donut">
-        <b>Crimes per Capita: </b>
+        <b>Crimes per Capita</b>
         </div>
         <div class="row donut" id="donut_capita">
-        </div>  
-        <div class="row donut">
-        <b>Ranking: </b>
-        </div>
-        <div class="row donut" id="donut_ranking">
         </div>  
       </div>
       <div class="col-xs-7" id="donut_chart">
       </div>
     </div>
     <div class="row chart_dimension" id="bar_vis">
-    Bar Chart
+      <ul class="nav nav-tabs nav-justified side_tabs">
+        <li role="button" class="active"><a class="graph_tabs bar_chart" data-toggle="tab" id="crime_stat">Crimes</a></li>
+        <li role="button"><a class="graph_tabs bar_chart" data-toggle="tab" id="per_capita">Per Capita</a></li>
+        <li role="button"><a class="graph_tabs bar_chart" data-toggle="tab" id="per_capita">Day of Week</a></li>
+        <li role="button"><a class="graph_tabs bar_chart" data-toggle="tab" id="per_capita">Hour of Day</a></li>
+      </ul>
+      <div class="col-xs-12 graph_area">
+      </div>
     </div>
     <div class="row chart_dimension" id="line_vis">
-    Timeline
+      <ul class="nav nav-tabs nav-justified side_tabs">
+        <li role="button" class="active"><a class="graph_tabs" data-toggle="tab" id="crime_stat">Crime Types</a></li>
+        <li role="button"><a class="graph_tabs bar_chart" data-toggle="tab" id="per_capita">Districts</a></li>
+        <li role="button"><a class="graph_tabs bar_chart" data-toggle="tab" id="per_capita">Day of Week</a></li>
+        <li role="button"><a class="graph_tabs bar_chart" data-toggle="tab" id="per_capita">Hour of Day</a></li>
+      </ul>
+      <div class="col-xs-12 graph_area">
+      </div>
     </div>
   </div>
 </div>
@@ -256,15 +266,34 @@ function initModule(error, geography, population, districts, homicide, sexOffens
     donut_vis.onLocationChange(stateMap);
   })
 
+  $(event_handler).bind('typeChanged', function(event){
+    donut_vis.onTypeChange(stateMap);
+  })
 
-  $(".switch_option").click(function(e){
+  // $(".switch_option").click(function(e){
+  //   var is_checked, crime_type;
+  //   is_checked = e.currentTarget.checked;
+  //   crime_type = e.currentTarget.name;
+  //   stateMap.crimeType[crime_type] = is_checked;
+  //   map_vis.map.spin(true);
+  //   setTimeout(function(){
+  //     map_vis.updateCrimeTypes(is_checked, crime_type, stateMap);
+  //   }, 50);
+  //   map_vis.map.on('ready', console.log('ready'));
+    
+  // })
+
+  $('.paper_switch').click(function(e){
     var is_checked, crime_type;
     is_checked = e.currentTarget.checked;
     crime_type = e.currentTarget.name;
     stateMap.crimeType[crime_type] = is_checked;
     map_vis.map.spin(true);
-    setTimeout(function(){map_vis.updateCrimeTypes(is_checked, crime_type);}, 50);
-  })
+    setTimeout(function(){
+      map_vis.updateCrimeTypes(is_checked, crime_type, stateMap);
+    }, 50);
+    map_vis.map.on('ready', console.log('ready'));
+    });
 
   // Initializes the daterange values and calls updateData function upon change
   $(function() {
