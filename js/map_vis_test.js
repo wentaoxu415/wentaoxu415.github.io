@@ -1,9 +1,10 @@
 
 /*-------------------------BEGIN MODULE OBJECT------------------------------*/
-MapVis = function(_parentElement, _geography, _population, _originalData, _stateMap, _eventHandler){
+MapVis = function(_parentElement, _geography, _population, _districts, _originalData, _stateMap, _eventHandler){
   this.parentElement = _parentElement;
   this.geography = _geography;
   this.population = _population;
+  this.districtName = _districts;
   this.originalData = _originalData;
   this.filteredData = jQuery.extend(true, {}, _originalData);
   this.stateMap = _stateMap;
@@ -11,7 +12,6 @@ MapVis = function(_parentElement, _geography, _population, _originalData, _state
   this.displayLayers = [];
   this.crimeStats = [];
   this.countCrimes();
-  this.styleNeighborhoods;
   this.initVis();
 }
 /*-------------------------END MODULE OBJECT--------------------------------*/
@@ -62,11 +62,12 @@ MapVis.prototype.updateCrimeTypes = function(bool, crime){
     that.map.removeLayer(that.displayLayers[crime])
         .on('ready', that.map.spin(false));
   }
-  that.countCrimes()
-  function style(feature){
+  that.countCrimes();
+
+  function updateStyle(feature){
     if (that.crimeStats['city']['total'] > 0){
       return {
-        fillColor: getColor(that.crimeStats[feature.id]['total'], that.population[feature.id]),
+        fillColor: updateColor(feature, that.crimeStats, that.population),
         fillOpacity: 1,
         weight: 2,
         color: 'white',
@@ -82,19 +83,22 @@ MapVis.prototype.updateCrimeTypes = function(bool, crime){
       };
     }
   }
-  function getColor(d, pop){
-    var val = (d/pop)/(that.crimeStats['city']['total']/that.population['city'])
-    return val >= 4.00  ? '#d73027' :
-    val >= 2.00  ? '#f46d43' : 
-    val >= 1.50  ? '#fdae61' :
-    val >= 1.00  ? '#fee090' :
-    val >= 0.75  ? '#e0f3f8' :
-    val >= 0.50  ? '#abd9e9' :
-    val >= 0.25  ? '#74add1' : '#4575b4';
+
+  function updateColor(feature, crime_stat, population){
+      var ratio = (crime_stat[feature.id]['total']/population[feature.id])/
+      (crime_stat['city']['total']/population['city']);
+      return ratio >= 4.00  ? '#d73027' :
+      ratio >= 2.00  ? '#f46d43' : 
+      ratio >= 1.50  ? '#fdae61' :
+      ratio >= 1.00  ? '#fee090' :
+      ratio >= 0.75  ? '#e0f3f8' :
+      ratio >= 0.50  ? '#abd9e9' :
+      ratio >= 0.25  ? '#74add1' : '#4575b4';
   }
-  this.displayLayers['neighborhood'].setStyle(style);
+
+  this.displayLayers['neighborhood'].setStyle(updateStyle);
 }
-  
+
   
 // Begin update method /updateDateAndTime/ 
 // Purpose:
@@ -212,8 +216,11 @@ L.easyButton('fa-comment',
   }
 
   function zoomToFeature(e){
-    that.stateMap.location = e.target.feature.properties.id;
+    var district = e.target.feature.properties.id;
     that.map.fitBounds(e.target.getBounds());
+    that.stateMap.location = that.districtName[district];
+
+    $(that.eventHandler).trigger("locationChanged", district);
   }
 
   function onEachFeature(feature, layer){
@@ -224,17 +231,7 @@ L.easyButton('fa-comment',
     });
   }
 
-  // function getColor(d, pop){
-  //   var val = (d/pop)/(that.crimeStats['city']['total']/that.population['city'])
-  //   return val > 4.00  ? '#08306b' :
-  //   val > 2.00  ? '#08519c' : 
-  //   val > 1.50  ? '#2171b5' :
-  //   val > 1.00  ? '#4292c6' :
-  //   val > 0.75  ? '#6baed6' :
-  //   val > 0.50  ? '#9ecae1' :
-  //   val > 0.25  ? '#c6dbef' : '#dee';
-  // }
-    function getColor(d, pop){
+  function getColor(d, pop){
     var val = (d/pop)/(that.crimeStats['city']['total']/that.population['city'])
     return val >= 4.00  ? '#d73027' :
     val >= 2.00  ? '#f46d43' : 
@@ -334,11 +331,6 @@ L.easyButton('fa-comment',
     retainZoomLevel: true,
 }).addTo(that.map);
 
-  var testObj = new Object();
-  function test(){
-    console.log("test");
-  };
-  return {test: test};
 }
 
 

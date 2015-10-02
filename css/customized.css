@@ -279,6 +279,7 @@ path:hover {
 
 #charts{
   position:absolute;
+  margin-top: 10px;
   top: 50px;
   bottom:0px;
   left: 75%;
@@ -514,4 +515,41 @@ paper-checkbox {
   padding-left: 10px;
 
 }
+
+#donut_chart{
+  height: 80%;
+  position: relative;
+}
+
+#donut_location{
+  height: 20%;
+}
+
+.row .donut{
+  font-size: 12px;
+}
+
+.legend_donut{
+  font-size: 10px;
+}
+
+.tooltip_donut{
+  background: #eee;
+  box-shadow: 0 0 5px #999999;
+  color: #333;
+  display: none;
+  font-size: 12px;
+  left: 38%;
+  padding: 10px;
+  position: absolute;
+  text-align: center;
+  top: 25%;
+  width: 80px;
+  z-index: 10;
+}
+
+.label_donut{
+  font-color: #000;
+}
+
 
