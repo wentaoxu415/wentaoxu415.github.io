@@ -2,12 +2,12 @@
 
 
   //-------------------- BEGIN MODULE SCOPE VARIABLES ------------------------ 
-DonutVis = function(_parentElement, _population, _districts, _originalData, _stateMap){
+DonutVis = function(_parentElement, _population, _districts, _filteredData, _stateMap){
   this.parentElement = _parentElement;
   this.population = _population;
   this.districtName = _districts;
-  this.originalData = _originalData;
-  this.filteredData = jQuery.extend(true, {}, _originalData);
+  this.filteredData = _filteredData;
+  this.displayData = jQuery.extend(true, {}, _filteredData);
   this.stateMap = _stateMap;
   this.crimeStats = [];
   this.initVis();
@@ -31,8 +31,8 @@ DonutVis.prototype.countCrimes = function(){
   }
 
   for (var key in that.stateMap.crimeType){
-    if (key in that.originalData && that.stateMap.crimeType[key]){
-      var crime = that.originalData[key].features;
+    if (key in that.filteredData && that.stateMap.crimeType[key]){
+      var crime = that.filteredData[key].features;
       crime.forEach(function(d, i){
         var zip = d.properties.zip;
         that.crimeStats[zip][key] += 1
@@ -44,7 +44,7 @@ DonutVis.prototype.countCrimes = function(){
     }
 }
 
-DonutVis.prototype.getDonutData = function(district){
+DonutVis.prototype.getDisplayData = function(district){
     var dataset= new Array();
     for (var key in this.crimeStats[district]){
       if(key != 'total'){
@@ -58,11 +58,11 @@ DonutVis.prototype.getDonutData = function(district){
   
   //---------------------BEGIN UPDATE METHODS---------------------------------
   DonutVis.prototype.updateVis = function(){
-    
     var that = this;
     var capita = d3.format(".2f"); 
     var comma = d3.format("0,000");
     var district = this.stateMap.location;
+    
     d3.select('#donut_location').html('<b><u>'+that.districtName[district]+'</u></b>');
     d3.select('#donut_population').html(comma(that.population[district]) + ' (2013)');
     d3.select('#donut_capita').html(capita(that.crimeStats[district]['total']/
@@ -70,7 +70,7 @@ DonutVis.prototype.getDonutData = function(district){
 
     this.pie.value(function(d){return d.count;})
       
-    this.path.data(this.pie(this.filteredData))
+    this.path.data(this.pie(this.displayData))
       .transition()
       .duration(2000)
       .attrTween("d", arcTween);
@@ -86,7 +86,7 @@ DonutVis.prototype.getDonutData = function(district){
     // })
 
   this.path.on('mouseover', function(d){
-    var total = d3.sum(that.filteredData.map(function(d){
+    var total = d3.sum(that.displayData.map(function(d){
       return d.count;
     }));
     var percent = Math.round(1000 * d.data.count / total)/10;
@@ -155,7 +155,7 @@ DonutVis.prototype.getDonutData = function(district){
   DonutVis.prototype.onLocationChange = function(state_map){
     var that = this;
     this.stateMap = state_map;
-    this.filteredData = this.getDonutData(this.stateMap.location);
+    this.displayData = this.getDisplayData(this.stateMap.location);
     this.updateVis();
   }
 
@@ -163,24 +163,35 @@ DonutVis.prototype.getDonutData = function(district){
     var that = this;
     this.stateMap = state_map;
     this.countCrimes();
-    this.filteredData = this.getDonutData(this.stateMap.location);
+    this.displayData = this.getDisplayData(this.stateMap.location);
     this.updateVis();
   }
+
+  DonutVis.prototype.onDatesChange = function(state_map, filtered_data){
+    var that = this;
+    this.stateMap = state_map;
+    this.filteredData = filtered_data
+    this.countCrimes();
+    this.displayData = this.getDisplayData(this.stateMap.location);
+    this.updateVis();
+  }
+
+
   //-------------------- END EVENT HANDLERS ----------------------------------
 
   //-------------------- BEGIN PUBLIC METHODS --------------------------------  
  DonutVis.prototype.initVis = function(){
   var that = this;
-  this.countCrimes();
   var capita = d3.format(".2f"); 
   var comma = d3.format("0,000");
   var district = this.stateMap.location;
+  this.countCrimes();
     d3.select('#donut_location').html('<b><u>'+that.districtName[district]+'</u></b>');
     d3.select('#donut_population').html(comma(that.population[district]) + ' (2013)');
     d3.select('#donut_capita').html(capita(that.crimeStats[district]['total']/
     (that.population[district]/1000)) + ' (per 1000 People)');
 
-  this.filteredData = this.getDonutData(this.stateMap.location);
+  this.displayData = this.getDisplayData(this.stateMap.location);
 
 
   this.width = parseInt(d3.select("#donut_chart").style("width"));
@@ -190,7 +201,7 @@ DonutVis.prototype.getDonutData = function(district){
   this.radius = Math.min(this.width, this.height) / 2;
   
   this.color = d3.scale.ordinal()
-  .range(['#A60F2B', '#648C85', '#B3F2C9', '#528C18', '#C3F25C']); 
+  .range(['#fdb462', '#b3de69', '#8dd3c7', '#fed976', '#fccde5', '#bebada', '#bc80bd']); 
 
   this.svg = d3.select('#donut_chart')
     .append('svg')
@@ -210,7 +221,7 @@ DonutVis.prototype.getDonutData = function(district){
 
 
     this.path = this.svg.selectAll('path')
-      .data(this.pie(this.filteredData))
+      .data(this.pie(this.displayData))
 
     this.path.exit()
       .remove();
@@ -225,7 +236,7 @@ DonutVis.prototype.getDonutData = function(district){
     .classed("donut", true);
 
   this.path.on('mouseover', function(d){
-    var total = d3.sum(that.filteredData.map(function(d){
+    var total = d3.sum(that.displayData.map(function(d){
       return d.count;
     }));
     var percent = Math.round(1000 * d.data.count / total)/10;

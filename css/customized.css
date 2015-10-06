@@ -157,6 +157,11 @@ path:hover {
   stroke-width: 3px;
 }
 
+path.donut:hover {
+  stroke: silver;
+  stroke-width: 3px;
+}
+
 .homicide{
   fill: #bc80bd;
   fill-opacity: .5;
@@ -291,79 +296,6 @@ path:hover {
   position: relative;
   margin: 0 auto;
 }
-
-.material-switch > input[type="checkbox"] {
-    display: none;   
-}
-
-.material-switch > label {
-    cursor: pointer;
-    height: 0px;
-    position: relative; 
-    width: 40px;  
-}
-
-.material-switch > label::before {
-    background: rgb(0, 0, 0);
-    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
-    content: '';
-    height: 16px;
-    margin-top: -8px;
-    position:absolute;
-    opacity: 0.3;
-    transition: all 0.4s ease-in-out;
-    width: 40px;
-}
-.material-switch > label::after {
-    background: rgb(255, 255, 255);
-    border-radius: 16px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
-    content: '';
-    height: 24px;
-    left: -4px;
-    margin-top: -8px;
-    position: absolute;
-    top: -4px;
-    transition: all 0.3s ease-in-out;
-    width: 24px;
-}
-.material-switch > input[type="checkbox"]:checked + label::before {
-    background: inherit;
-    opacity: 0.5;
-}
-.material-switch > input[type="checkbox"]:checked + label::after {
-    background: inherit;
-    left: 20px;
-}
-
-/*#color_assault{
-  background: #683997; 
-}
-
-#color_burglary{
-  background: #bebada; 
-}
-
-#color_drug{
-  background: #ffffb3;
-}
-
-#color_homicide{
-  background: #8dd3c7;
-}
-
-#color_robbery{
-  background: #b3de69;
-}
-
-#color_sexOffense{
-  background: #fdb462;
-}
-
-#color_weaponLaw{
-  background: #f781bf;
-}*/
 
 #color_assault{
   background: #bc80bd; 
@@ -535,17 +467,47 @@ paper-checkbox {
     --paper-checkbox-checked-ink-color: #009688;
   }
 
+#assault_label{
+  background-color: #fdb462;
+  width: 120px;
+  padding-left: 10px;
+}
+#burglary_label{
+  background-color: #b3de69;
+  width: 120px;
+  padding-left: 10px;
+}
+#drug_label{
+  background-color: #8dd3c7;
+  width: 120px;
+  padding-left: 10px;
+}
 #homicide_label{
-  background-color: #8da0cb;
+  background-color: #ffffb3;
+  width: 120px;
+  padding-left: 10px;
+}
+#robbery_label{
+  background-color: #fccde5;
+  width: 120px;
+  padding-left: 10px;
+}
+#sexOffense_label{
+  background-color: #bebada;
+  width: 120px;
+  padding-left: 10px;
+}
+#weaponLaw_label{
+  background-color: #bc80bd;
   width: 120px;
   padding-left: 10px;
 }
 
-#sexOffense_label{
-  background-color: #e78ac3 ;
-  width: 120px;
-  padding-left: 10px;
-}
+
+
+
+
+
 
 #donut_chart{
   height: 80%;
@@ -570,9 +532,9 @@ paper-checkbox {
 }
 
 .tooltip_donut{
-  background: #eee;
+/*  background: #eee;*/
   box-shadow: 0 0 5px #999999;
-  color: #333;
+  /*color: #333;*/
   display: none;
   font-size: 12px;
   left: 38%;
@@ -582,6 +544,10 @@ paper-checkbox {
   top: 25%;
   width: 80px;
   z-index: 10;
+  line-height: 1;
+  background: rgba(255, 255, 255, 1);
+  color: #000;
+  border-radius: 2px;
 }
 
 .label_donut{
@@ -607,3 +573,53 @@ paper-checkbox {
 }
 
 
+.paper_checkbox_bottom{
+  margin-bottom: 0px;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis:hover{
+  stroke: none;
+}
+
+
+.d3-tip {
+  line-height: 1;
+  font-weight: normal;
+  font-size: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #000;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.test_border{
+  stroke: red;
+  stroke-width: 1;
+}

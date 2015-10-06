@@ -112,22 +112,9 @@ MapVis.prototype.updateCrimeTypes = function(bool, crime, state_map){
 // *
 // Returns:
 // *
-MapVis.prototype.updateDateAndTime = function(start_date, end_date, start_time, end_time){
+MapVis.prototype.updateDateAndTime = function(_filtered_data){
   var that = this;
-  var filtered_data = jQuery.extend(true, {}, that.originalData);
-  for (var key in filtered_data){
-    console.log(that.originalData[key].features.length);
-    var result = new Array();
-    filtered_data[key].features.forEach(function(d){
-      var crime_date = new Date(d.properties.date);
-      var crime_time = d.properties.time;
-      if (crime_date >= new Date(start_date) && crime_date <= new Date(end_date) 
-      && crime_time >= start_time && crime_time <= end_time){
-        result.push(d);
-      }
-    })
-    this.filteredData[key].features = result;
-  }
+  this.filteredData = _filtered_data;
 
   for (var key in this.stateMap.crimeType){
     if (this.stateMap.crimeType[key]){
@@ -143,6 +130,39 @@ MapVis.prototype.updateDateAndTime = function(start_date, end_date, start_time, 
       this.map.addLayer(this.displayLayers[key])
     }
   }
+  this.countCrimes();
+  function updateStyle(feature){
+    if (that.crimeStats['city']['total'] > 0){
+      return {
+        fillColor: updateColor(feature, that.crimeStats, that.population),
+        fillOpacity: 1,
+        weight: 2,
+        color: 'white',
+        dashArray: '',
+      }
+    }
+    else{
+      return {
+        fillColor: "#cccccc",
+        weight: 2,
+        color: 'white',
+        dashArray: ''
+      };
+    }
+  }
+
+  function updateColor(feature, crime_stat, population){
+      var ratio = (crime_stat[feature.id]['total']/population[feature.id])/
+      (crime_stat['city']['total']/population['city']);
+      return ratio >= 4.00  ? '#d73027' :
+      ratio >= 2.00  ? '#f46d43' : 
+      ratio >= 1.50  ? '#fdae61' :
+      ratio >= 1.00  ? '#fee090' :
+      ratio >= 0.75  ? '#e0f3f8' :
+      ratio >= 0.50  ? '#abd9e9' :
+      ratio >= 0.25  ? '#74add1' : '#4575b4';
+  }
+  this.displayLayers['neighborhood'].setStyle(updateStyle);
 }
 
 
