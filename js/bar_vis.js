@@ -56,6 +56,7 @@ BarVis.prototype.countDayOfWeek = function(){
   var that = this;
   var time;
   var data = new Array();
+  var data_test = new Array();
   var final_data = new Array();
   var dow_map = { 
     'Monday': 1,
@@ -67,31 +68,87 @@ BarVis.prototype.countDayOfWeek = function(){
     'Sunday': 7
   }
 
+
+  for (var day in dow_map){
+    data_test[day] = new Array();
+    for (var crime in this.stateMap.crimeType){
+      if (this.stateMap.crimeType.hasOwnProperty(crime)){
+        data_test[day][crime] = 0   
+      }
+    }
+  }
+  
   for (var key in this.filteredData){
     if (this.stateMap.crimeType[key]){
       this.filteredData[key].features.forEach(function(d, i){
         time = d.properties.dow 
-        if (time in data){
-          data[time]['val'] += 1
-        }
-        else{
-          data[time] = {'date': time, 'val': 1}
-        }
+        data_test[time][key] += 1
       })
     }
   }
 
+  var final_data_test = new Array();
   var idx = 0;
-  for (var key in data){
-    final_data[idx] = {}
-    final_data[idx].date = key;
-    final_data[idx].val = data[key]['val'];
-    idx+=1;
+  for (var day in data_test){
+    var y0 = 0;
+    final_data_test[idx] = new Object();
+    final_data_test[idx].val = that.color.domain().map(function(name){
+      return {day: day, name: name, y0:y0, y1: y0 += +data_test[day][name] }
+    }) 
+    final_data_test[idx].dow = day; 
+    final_data_test[idx].total = final_data_test[idx].val[final_data_test[idx].val.length-1].y1; 
+    idx += 1;
   }
+  // console.log(final_data_test);
+
+
+
+
+  // // for (var key in this.filteredData){
+  // //   if (this.stateMap.crimeType[key]){
+  // //     this.filteredData[key].features.forEach(function(d, i){
+  // //       time = d.properties.dow
+  // //       if (time in dataset_test){
+  // //         data[time]
+  // //       }
+  // //     })
+  // //   }
+  // // }
+
+  // // var idx = 0;
+  // // for (var day in dow_map){
+  // //   data_test[idx] = new Object();
+  // //   data_test[idx].val = 
+  // //     data_test[idx].date = 
+  // // }
+
+  // console.log(this.stateMap.crimeType, data_test);
+
+  // for (var key in this.filteredData){
+  //   if (this.stateMap.crimeType[key]){
+  //     this.filteredData[key].features.forEach(function(d, i){
+  //       time = d.properties.dow 
+  //       if (time in data){
+  //         data[time]['val'] += 1
+  //       }
+  //       else{
+  //         data[time] = {'date': time, 'val': 1}
+  //       }
+  //     })
+  //   }
+  // }
+
+  // var idx = 0;
+  // for (var key in data){
+  //   final_data[idx] = {}
+  //   final_data[idx].date = key;
+  //   final_data[idx].val = data[key]['val'];
+  //   idx+=1;
+  // }
 
   
-  final_data.sort(function(a, b){return dow_map[a.date] - dow_map[b.date]})
-  this.displayData = final_data;
+  // final_data.sort(function(a, b){return dow_map[a.date] - dow_map[b.date]})
+  this.displayData = final_data_test;
 }
 
 BarVis.prototype.getDisplayData = function(){
@@ -138,8 +195,10 @@ BarVis.prototype.updateVis = function(){
     function(key){ return key!== 'total'}));
   
   this.displayData = this.getDisplayData();
-
+  
   this.displayData.sort(function(a, b){return b.total - a.total});
+  
+  console.log(d3.max(this.displayData, function(d){return d.val}));
   this.x.domain(this.displayData.map(function(d){return d.key}))
   this.y.domain([0, d3.max(that.displayData, function(d){return d.total;})])
   
@@ -259,11 +318,12 @@ BarVis.prototype.drawDayOfWeek = function(){
 
   this.x = d3.scale.ordinal()
     .domain(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-    .rangePoints([0, this.width]);
+    .rangeRoundBands([0, this.width], .1);
 
   this.y = d3.scale.linear()
-    .domain([0, d3.max(this.displayData, function(d){return d.val;})])
     .range([this.height, 0]);
+
+  this.y.domain([0, d3.max(this.displayData, function(d){return d.total})]);
 
   this.xAxis = d3.svg.axis()
     .scale(this.x)
@@ -279,7 +339,10 @@ BarVis.prototype.drawDayOfWeek = function(){
     .attr('id', 'dow_svg')
     .append('g')
       .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
-      .attr('class', 'x axis')
+      
+  this.svg.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', 'translate(0,' + this.height + ')')
 
   this.svg.append('g')
     .attr('class', 'y axis')
@@ -291,6 +354,20 @@ BarVis.prototype.drawDayOfWeek = function(){
     .style('text-anchor', 'middle')
     .text('Crime Incidents')
 
+  this.color = d3.scale.ordinal()
+    .range(['#fdb462', '#b3de69', '#8dd3c7', '#fed976', '#fccde5', '#bebada', '#bc80bd']);
+
+  var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d){
+      var count = d.y1 - d.y0;
+      return '<strong>Day: </strong> <span>' + d.day + '</span><br>'
+      + '<strong>Crime: </strong> <span>' + d.name + '</span> <br>' 
+      + '<strong>Incidents: </strong> <span>' + count + '</span> ' ;
+    });
+
+  this.svg.call(tip);
 
   this.svg.select('.x.axis').transition()
     .duration(500)
@@ -301,19 +378,21 @@ BarVis.prototype.drawDayOfWeek = function(){
     .call(this.yAxis)
 
   this.dow = this.svg.selectAll('.dow')
-    .data(this.displayData)
+    .data(this.displayData, function(d){return d.dow})
     .enter().append('g')
     .attr('class', 'g')
-    .attr('transform', function(d){return 'translate(' + that.x(d.date) + ',0)';});
+    .attr('transform', function(d){return 'translate(' + that.x(d.dow) + ',0)';});
 
+  this.dow.selectAll('rect')
+    .data(function(d){return d.val})
+    .enter().append('rect')
+    .attr('width', this.x.rangeBand())
+    .attr('y', function(d){return that.y(d.y1)})
+    .attr("height", function(d){return that.y(d.y0)- that.y(d.y1);})
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
+    .style('fill', function(d){return that.color(d.name)})
 
-
-
-  this.dow.append('rect')
-    .attr('width', 20)
-    .attr('y', function(d){return that.y(d.val)})
-    .attr("height", function(d){console.log(d.val); return that.height - that.y(d.val)})
-    
 
 }
 
@@ -326,8 +405,6 @@ BarVis.prototype.onTypeChange = function(state_map){
 BarVis.prototype.onLocationChange = function(state_map){
   var that = this;
   this.stateMap = state_map;
-  console.log(this.stateMap.location);
-  console.log(this.district);
   this.district.classed('test_border', function(d){ if(d.key == that.stateMap.location) return true;})
 }
 
