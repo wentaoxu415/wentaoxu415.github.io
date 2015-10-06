@@ -99,78 +99,51 @@ BarVis.prototype.countDayOfWeek = function(){
     final_data_test[idx].total = final_data_test[idx].val[final_data_test[idx].val.length-1].y1; 
     idx += 1;
   }
-  // console.log(final_data_test);
-
-
-
-
-  // // for (var key in this.filteredData){
-  // //   if (this.stateMap.crimeType[key]){
-  // //     this.filteredData[key].features.forEach(function(d, i){
-  // //       time = d.properties.dow
-  // //       if (time in dataset_test){
-  // //         data[time]
-  // //       }
-  // //     })
-  // //   }
-  // // }
-
-  // // var idx = 0;
-  // // for (var day in dow_map){
-  // //   data_test[idx] = new Object();
-  // //   data_test[idx].val = 
-  // //     data_test[idx].date = 
-  // // }
-
-  // console.log(this.stateMap.crimeType, data_test);
-
-  // for (var key in this.filteredData){
-  //   if (this.stateMap.crimeType[key]){
-  //     this.filteredData[key].features.forEach(function(d, i){
-  //       time = d.properties.dow 
-  //       if (time in data){
-  //         data[time]['val'] += 1
-  //       }
-  //       else{
-  //         data[time] = {'date': time, 'val': 1}
-  //       }
-  //     })
-  //   }
-  // }
-
-  // var idx = 0;
-  // for (var key in data){
-  //   final_data[idx] = {}
-  //   final_data[idx].date = key;
-  //   final_data[idx].val = data[key]['val'];
-  //   idx+=1;
-  // }
-
-  
-  // final_data.sort(function(a, b){return dow_map[a.date] - dow_map[b.date]})
   this.displayData = final_data_test;
+}
+
+BarVis.prototype.countHourOfDay = function(){
+  var that = this;
+  var time_data = new Array();
+  var zero = d3.format("02d");
+  var convertHour = d3.time.format("%H");
+  var parseHour = d3.time.format("%H:%M").parse;
+  
+  for (var i = 0; i < 24; i++){
+    time_data[zero(i)] = new Array();
+    for (var key in this.stateMap.crimeType){
+      time_data[zero(i)][key] = 0
+    }
+  }
+  for (var key in this.filteredData){
+    if(this.stateMap.crimeType[key]){
+      this.filteredData[key].features.forEach(function(d, i){
+        time = convertHour(parseHour(d.properties.time))
+        time_data[time][key] += 1
+      })
+    }
+  }
+
+  var final_data = new Array()
+  var idx = 0;
+  for (var i = 0; i < 24; i++){
+    var hour = zero(i);
+    var y0 = 0;
+    final_data[idx] = new Object()
+    final_data[idx].val = that.color.domain().map(function(name){
+      return {hour: hour, name: name, y0:y0, y1: y0 += +time_data[hour][name] }
+    })
+    final_data[idx].hour = hour;
+     final_data[idx].total = final_data[idx].val[final_data[idx].val.length - 1].y1;
+    idx+=1;
+  }
+  
+  this.displayData = final_data;
 }
 
 BarVis.prototype.getDisplayData = function(){
   var that = this;
-  // this.crimeStats.forEach(function(d){
-  //   var y0 = 0;
-  //   d.val = that.color.domain().map(function(name){
-  //     return {name: name, y0:y0, y1: y0 += +d[name]}; })
-  //   d.total = d.val[d.val.length - 1].y1;
 
-  // });
-  // var dataset = new Array();
-  // var idx = 0;
-  // for (var key in this.crimeStats){
-  //   if (key != 'city' && key != 'N/A'){
-  //   dataset[idx] = {};
-  //   dataset[idx].key = key;
-  //   dataset[idx].val = this.crimeStats[key].val;
-  //   dataset[idx].total = this.crimeStats[key].total;
-  //   idx +=1
-  //   }
-  // }
   var dataset_test = new Array();
   var index = 0;
   for(var key in this.crimeStats){
@@ -191,14 +164,14 @@ BarVis.prototype.getDisplayData = function(){
 
 BarVis.prototype.updateVis = function(){
   var that = this;
+  
   this.color.domain(d3.keys(this.crimeStats['city']).filter(
     function(key){ return key!== 'total'}));
   
   this.displayData = this.getDisplayData();
   
   this.displayData.sort(function(a, b){return b.total - a.total});
-  
-  console.log(d3.max(this.displayData, function(d){return d.val}));
+    
   this.x.domain(this.displayData.map(function(d){return d.key}))
   this.y.domain([0, d3.max(that.displayData, function(d){return d.total;})])
   
@@ -241,20 +214,6 @@ BarVis.prototype.updateVis = function(){
     .duration(500)
     .style('fill', function(d){return that.color(d.name);});
 
-
-
-  // this.district.selectAll('rect')
-  //   .on('mouseover', function(d){
-  //   var count = d.y1 - d.y0;
-  //   that.tooltip.select('.label_district').html(that.districtData[d.district]);
-  //   that.tooltip.select('.label_crime').html(d.name);
-  //   that.tooltip.select('.count').html(count);
-  //   that.tooltip.style('display', 'block')
-  //   that.tooltip.style('left', (d3.event.pageX)+ 'px')
-  //   that.tooltip.style('top', (d3.event.pageY) + 'px')
-
-  // })
-
 }
 
 BarVis.prototype.drawDayOfWeek = function(){
@@ -268,53 +227,6 @@ BarVis.prototype.drawDayOfWeek = function(){
 
   d3.select('#crime_svg')
     .remove();
-
-  // this.x = d3.scale.ordinal()
-  //   .domain(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-  //   .rangePoints([0, this.width]);
-
-  // this.y = d3.scale.linear()
-  //   .range([this.height, 0])
-
-  // this.xAxis = d3.svg.axis()
-  //   .scale(this.x)
-  //   .orient("bottom")
-
-  // this.yAxis = d3.svg.axis()
-  //   .scale(this.y)
-  //   .orient("left")
-
-  // this.line = d3.svg.line()
-  //   .x(function(d){return that.x(d.date);})
-  //   .y(function(d){return that.y(d.val);})
-
-  // this.svg = d3.select('#time').append('svg')
-  //   .attr("width", this.width + this.margin.left + this.margin.right)
-  //   .attr("height", this.height + this.margin.top + this.margin.bottom)
-  //   .append('g')
-  //   .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
-
-  // this.y.domain([0, d3.max(that.displayData, function(d){return d.val;})]);
-  //   this.svg.append('g')
-  //     .attr('class', 'x axis')
-  //     .attr('transform', 'translate(0,' + this.height + ')')
-  //     .call(that.xAxis)
-
-  // this.svg.append('g')
-  //   .attr('class', 'y axis')
-  //   .call(that.yAxis)
-  //   .append('text')
-  //   .attr('transform', 'rotate(-90)')
-  //   .attr('y', 0 - this.margin.left)
-  //   .attr('x', 0 - (this.height/2))
-  //   .attr('dy', '.71em')
-  //   .style('text-anchor', 'middle')
-  //   .text('Incidents')
-
-  // this.svg.append('path')
-  //   .datum(that.displayData)
-  //   .attr('class', 'line')
-  //   .attr('d', that.line);
 
   this.x = d3.scale.ordinal()
     .domain(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
@@ -396,6 +308,101 @@ BarVis.prototype.drawDayOfWeek = function(){
 
 }
 
+BarVis.prototype.drawHourOfDay = function(){
+  var that = this;
+  this.margin = {top: 5, right: 40, bottom: 20, left: 40}
+  this.width = parseInt(d3.select("#bar_chart").style("width"))- this.margin.left - this.margin.right;
+  this.height = parseInt(d3.select("#bar_chart").style("height")) - this.margin.top - this.margin.bottom;
+
+  this.svg.selectAll('rect')
+    .remove();
+
+  d3.select('#crime_svg')
+    .remove();
+
+  
+    
+  var x_domain = d3.keys(this.displayData).map(function(d){return that.displayData[d].hour});
+  // var x_domain = ["00", "01", "02", "03", "04", "05"]
+  // var x_domain = [0, 2, 3, 4, 5]
+  this.x = d3.scale.ordinal()
+    .domain(x_domain)
+    .rangeRoundBands([0, this.width], .1);
+
+  this.y = d3.scale.linear()
+    .range([this.height, 0]);
+
+  this.y.domain([0, d3.max(this.displayData, function(d){return d.total})]);
+
+  this.xAxis = d3.svg.axis()
+    .scale(this.x)
+    .orient("bottom");
+
+  this.yAxis = d3.svg.axis()
+    .scale(this.y)
+    .orient("left");
+
+  this.svg = d3.select("#bar_chart").append("svg")
+    .attr('width', this.width + this.margin.left + this.margin.right)
+    .attr('height', this.height + this.margin.top + this.margin.bottom)
+    .attr('id', 'dow_svg')
+    .append('g')
+      .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')')
+      
+  this.svg.append('g')
+    .attr('class', 'x axis')
+    .attr('transform', 'translate(0,' + this.height + ')')
+
+  this.svg.append('g')
+    .attr('class', 'y axis')
+    .append('text')
+    .attr('transform', 'rotate(-90)')
+    .attr('y', 0-this.margin.left)
+    .attr('x', 0-(this.height/2))
+    .attr('dy', '.71em')
+    .style('text-anchor', 'middle')
+    .text('Crime Incidents')
+
+  this.color = d3.scale.ordinal()
+    .range(['#fdb462', '#b3de69', '#8dd3c7', '#fed976', '#fccde5', '#bebada', '#bc80bd']);
+
+  var tip = d3.tip()
+    .attr('class', 'd3-tip')
+    .offset([-10, 0])
+    .html(function(d){
+      var count = d.y1 - d.y0;
+      return '<strong>Hour: </strong> <span>' + d.hour + '</span><br>'
+      + '<strong>Crime: </strong> <span>' + d.name + '</span> <br>' 
+      + '<strong>Incidents: </strong> <span>' + count + '</span> ' ;
+    });
+
+  this.svg.call(tip);
+
+  this.svg.select('.x.axis').transition()
+    .duration(500)
+    .call(this.xAxis)
+
+  this.svg.select('.y.axis').transition()
+    .duration(500)
+    .call(this.yAxis)
+
+  this.hod = this.svg.selectAll('.hod')
+    .data(this.displayData, function(d){return d.hour})
+    .enter().append('g')
+    .attr('class', 'g')
+    .attr('transform', function(d){return 'translate(' + that.x(d.hour) + ',0)';});
+
+  this.hod.selectAll('rect')
+    .data(function(d){return d.val})
+    .enter().append('rect')
+    .attr('width', this.x.rangeBand())
+    .attr('y', function(d){return that.y(d.y1)})
+    .attr("height", function(d){return that.y(d.y0)- that.y(d.y1);})
+    .on('mouseover', tip.show)
+    .on('mouseout', tip.hide)
+    .style('fill', function(d){return that.color(d.name)})
+
+}
 BarVis.prototype.onTypeChange = function(state_map){
   this.stateMap = state_map;
   this.countCrimes();
@@ -431,6 +438,10 @@ BarVis.prototype.onTabChange = function(e, state_map){
   else if (e.target.id === 'day_of_week'){
     this.countDayOfWeek();
     this.drawDayOfWeek();
+  }
+  else if (e.target.id === 'hour_of_day'){
+    this.countHourOfDay();
+    this.drawHourOfDay();
   }
 }
 //-------------------- END UTILITY METHODS ---------------------------------
