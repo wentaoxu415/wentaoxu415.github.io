@@ -537,12 +537,12 @@ paper-checkbox {
   /*color: #333;*/
   display: none;
   font-size: 12px;
-  left: 38%;
+  left: 20%;
   padding: 10px;
   position: absolute;
   text-align: center;
   top: 25%;
-  width: 80px;
+  width: 140px;
   z-index: 10;
   line-height: 1;
   background: rgba(255, 255, 255, 1);

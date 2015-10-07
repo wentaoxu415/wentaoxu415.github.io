@@ -90,9 +90,9 @@ DonutVis.prototype.getDisplayData = function(district){
       return d.count;
     }));
     var percent = Math.round(1000 * d.data.count / total)/10;
-    that.tooltip.select('.label_donut').html(d.data.label);
-    that.tooltip.select('.count').html(d.data.count);
-    that.tooltip.select('.percent').html(percent + '%');
+    that.tooltip.select('.label_donut').html('<strong>Crime: </strong><span>' + d.data.label + '</span><br>');
+    that.tooltip.select('.count').html('<strong>Incidents: </strong><span>' + d.data.count + '</span><br>')
+    that.tooltip.select('.percent').html('<strong>Proportion: </strong><span>' + percent + '%</span><br>');
     that.tooltip.style('display', 'block')
   });
 
@@ -218,7 +218,14 @@ DonutVis.prototype.getDisplayData = function(district){
       .value(function(d){return d.count;})
       .sort(null);
     
+  // var tip = d3.tip()
+  //   .attr('class', 'd3-tip')
+  //   .offset([-10, 0])
+  //   .html(function(d){
+  //     return d.data.label;
+  //   })
 
+  // this.svg.call(tip);
 
     this.path = this.svg.selectAll('path')
       .data(this.pie(this.displayData))
@@ -233,16 +240,16 @@ DonutVis.prototype.getDisplayData = function(district){
       return (that.color(d.data.label));
     })
     .each(function(d) {this._current = d; }) 
-    .classed("donut", true);
-
+    .classed("donut", true)
+   
   this.path.on('mouseover', function(d){
     var total = d3.sum(that.displayData.map(function(d){
       return d.count;
     }));
     var percent = Math.round(1000 * d.data.count / total)/10;
-    that.tooltip.select('.label_donut').html(d.data.label);
-    that.tooltip.select('.count').html(d.data.count);
-    that.tooltip.select('.percent').html(percent + '%');
+    that.tooltip.select('.label_donut').html('<strong>Crime: </strong><span>' + d.data.label + '</span><br>');
+    that.tooltip.select('.count').html('<strong>Incidents: </strong><span>' + d.data.count + '</span><br>')
+    that.tooltip.select('.percent').html('<strong>Proportion: </strong><span>' + percent + '%</span><br>');
     that.tooltip.style('display', 'block')
   });
 
@@ -290,6 +297,7 @@ DonutVis.prototype.getDisplayData = function(district){
 
   this.tooltip.append('div')
     .attr('class', 'percent');
+
  }
 
   //-------------------- END PUBLIC METHODS --------------------------------  

@@ -150,8 +150,7 @@
 <script>
 $(function(){
 /*---------------------------BEGIN MODULE VARIABLES-------------------------*/
-  var map_vis, geographyData,
-  populationData;
+  var map_vis, geographyData, populationData,
   originalData = {
     homicide: null, sexOffense: null
   },
@@ -163,32 +162,18 @@ $(function(){
     startDate: '01/01/2003', endDate: '08/31/2015',
     startTime: '00:00', endTime: '23:59',
     location: 'city',
-    bar_tab: 'crime_stat',
-    line_tab: 'crime_types'
+    barTab: 'crime_stat',
+    lineTab: 'crime_types'
   };
 
 /*---------------------------END MODULE VARIABLES---------------------------*/
 
 /*---------------------------BEGIN HELPER METHODS-------------------------*/ 
   
-  // Parses the date in string form and converts into date format
-  parseDate = d3.time.format("%m/%d/%Y").parse;
-  // Takes in a date and returns "Year/Month/Day" format
-  getDate = d3.time.format("%Y/%m/%d");
-  // Takes in a date and returns only the Year
-  getYear = d3.time.format("%Y");
-
-  // Takes in a date and returns "Month, Year" format
-  getMonth = d3.time.format("%b, %Y");
-
-  // Parses the date in string form and converts into time format
-  parseTime = d3.time.format("%H:%M").parse;
-
-  // Takes in a time and returns military time
-  getTime = d3.time.format("%H:%M");
-
-  // Takes in a time and returns only the Hour
-  getHour = d3.time.format("%H");
+  // Parses the date in string form and converts into time format x
+  var parseTime = d3.time.format("%H:%M").parse;
+  // Takes in a time and returns military time x
+  var getTime = d3.time.format("%H:%M");
 
   // Purpose: 
   //  * To update both start and end dates in stateMap based on users' 
@@ -206,6 +191,22 @@ $(function(){
   function updateTime(start_time, end_time){
     stateMap.startTime = start_time;
     stateMap.endTime = end_time;
+  }
+
+  function updateLocation(location){
+    stateMap.location = location;
+  }
+
+  function updateBarTab(tab){
+    stateMap.barTab = tab;
+  }
+
+  function updateLineTab(tab){
+    stateMap.lineTab = tab;
+  }
+
+  function updateCrimeType(type, bool){
+    stateMap.crimeType[type] = bool;
   }
 
   function isInDateRange(date, start_date, end_date){
@@ -267,8 +268,8 @@ function initModule(error, geography, population, districts, homicide, sexOffens
 
   
   /*---------------------------BEGIN EVENT HANDLERS---------------------------*/ 
-  $(event_handler).bind("locationChanged", function(event, object){
-    stateMap.location = object;
+  $(event_handler).bind("locationChanged", function(event, location){
+    updateLocation(location);
     donut_vis.onLocationChange(stateMap);
     bar_vis.onLocationChange(stateMap);
   })
@@ -278,7 +279,7 @@ function initModule(error, geography, population, districts, homicide, sexOffens
     bar_vis.onTypeChange(stateMap);
   })
 
-  $(event_handler).bind('datesChanged', function(event){
+  $(event_handler).bind('timeChanged', function(event){
     var start_date, end_date, start_time, end_time;
     start_date = stateMap.startDate;
     end_date = stateMap.endDate;
@@ -290,23 +291,11 @@ function initModule(error, geography, population, districts, homicide, sexOffens
     bar_vis.onTimeChange(stateMap, filtered_data);
   })
 
-  $(event_handler).bind('timeChanged', function(event){
-      var start_date, end_date, start_time, end_time;
-      start_date = stateMap.startDate;
-      end_date = stateMap.endDate; 
-      start_time = stateMap.startTime;
-      end_time = stateMap.endTime;
-      filtered_data = filterData(start_date, end_date, start_time, end_time);
-      map_vis.updateDateAndTime(filtered_data);
-      bar_vis.onTimeChange(stateMap, filtered_data);
-  })
-
-
   $('.paper_switch').click(function(e){
     var is_checked, crime_type;
     is_checked = e.currentTarget.checked;
     crime_type = e.currentTarget.name;
-    stateMap.crimeType[crime_type] = is_checked;
+    updateCrimeType(crime_type, is_checked);
     map_vis.map.spin(true);
     setTimeout(function(){
       map_vis.updateCrimeTypes(is_checked, crime_type, stateMap);
@@ -332,7 +321,7 @@ function initModule(error, geography, population, districts, homicide, sexOffens
         start_date = new Date(_start_date);
         end_date = new Date(_end_date);
         updateDate(start_date, end_date);
-        $(event_handler).trigger('datesChanged');
+        $(event_handler).trigger('timeChanged');
     });
   });
 
@@ -366,8 +355,8 @@ function initModule(error, geography, population, districts, homicide, sexOffens
   });
 
 $('a[data-toggle="bar"]').on('click', function (e) {
-  stateMap.bar = e.target.id;
-  bar_vis.onTabChange(e, stateMap);
+  updateBarTab(e.target.id);
+  bar_vis.onTabChange(stateMap);
 });
 
   $(function(){
@@ -379,7 +368,7 @@ $('a[data-toggle="bar"]').on('click', function (e) {
   
 }; 
 /*---------------------------END PUBLIC METHODS-----------------------------*/
-//Load the data
+
 queue()
 .defer(d3.json, 'data/sf-neighborhoods.json')
 .defer(d3.json, 'data/population.json')
@@ -390,5 +379,4 @@ queue()
 });
 </script>
 </body>
-
 </html>

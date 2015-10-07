@@ -310,7 +310,7 @@ L.easyButton('fa-comment',
         .setZIndex(0)
         .addTo(that.map);
 
-  for (var key in stateMap.crimeType){
+  for (var key in this.stateMap.crimeType){
     that.displayLayers[key] = L.geoJson(that.filteredData[key], {
       pointToLayer: function(feature, latlng){
         var content = "<span><b>Incident ID:</b> " + feature.id + "</span> <br>\
