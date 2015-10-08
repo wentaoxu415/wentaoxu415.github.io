@@ -311,7 +311,7 @@ function initModule(error, geography, population, districts, homicide, sexOffens
     bar_vis.onTabChange(stateMap);
   });
 
-  $('a[data-toggle="bar"]').on('click', function (e) {
+  $('a[data-toggle="line"]').on('click', function (e) {
     updateLineTab(e.target.id);
     line_vis.onTabChange(stateMap);
   });

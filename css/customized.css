@@ -642,7 +642,11 @@ paper-checkbox {
 .line_tip{
   font-size: 10px;
   top: -8%;
-  right: 5%;
+  left: 15%;
+  line-height: 1;
+  font-weight: normal;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
 }
 
 .onoffswitch {
