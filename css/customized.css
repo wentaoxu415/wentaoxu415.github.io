@@ -163,7 +163,7 @@ path.donut:hover {
 }
 
 .homicide{
-  fill: #bc80bd;
+  fill: #ffffb3;
   fill-opacity: .5;
   stroke: #bc80bd;
   stroke-width: 0.5px;
@@ -176,7 +176,7 @@ path.donut:hover {
 
 .sexOffense{
   fill: #bebada;
-  fill-opacity: .2;
+  fill-opacity: .5;
   stroke: #bebada;
   stroke-width: 0.5px;
 }
@@ -622,4 +622,76 @@ paper-checkbox {
 .test_border{
   stroke: red;
   stroke-width: 1;
+}
+
+.area {
+  fill: steelblue;
+  stroke-width: 0px;
+}
+
+.area:hover{
+  stroke: #000;
+  stroke-width: 0.5px;
+}
+
+.focus circle {
+  fill: green;
+  stroke: steelblue;
+}
+
+.line_tip{
+  font-size: 10px;
+  top: -8%;
+  right: 5%;
+}
+
+.onoffswitch {
+    position: relative; width: 80px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #999999; border-radius: 20px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 25px; padding: 0; line-height: 25px;
+    font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "ON";
+    padding-left: 10px;
+    background-color: #34A7C1; color: #FFFFFF;
+}
+.onoffswitch-inner:after {
+    content: "OFF";
+    padding-right: 10px;
+    background-color: #EEEEEE; color: #999999;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 20px; margin: 4.5px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 51px;
+    border: 2px solid #999999; border-radius: 20px;
+    transition: all 0.3s ease-in 0s; 
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
+}
+.before_switch{
+  margin-bottom: -15px;
 }

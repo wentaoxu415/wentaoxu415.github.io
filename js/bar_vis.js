@@ -197,7 +197,37 @@ BarVis.prototype.getDisplayData = function(){
   }
 }
 //-------------------- END COUNT METHODS -----------------------------------
+//-------------------- BEGIN EVENT HANDLERS-----------------------------------
+BarVis.prototype.onTypeChange = function(state_map){
+  this.stateMap = state_map;
+  this.updateVis();
+}
 
+BarVis.prototype.onLocationChange = function(state_map){
+  var that = this;
+  this.stateMap = state_map;
+  var tab = this.stateMap.barTab;
+  if (tab === 'crime_stat' || tab === 'per_capita'){
+    this.bar.classed('test_border', function(d)
+      { if(d.key == that.stateMap.location) return true;})
+  }
+  else if (tab === 'day_of_week' || tab === 'hour_of_day'){
+    this.updateVis();
+  }
+}
+
+BarVis.prototype.onTimeChange = function(state_map, filtered_data){
+  this.stateMap = state_map;
+  this.filteredData = filtered_data;
+  this.updateVis();
+}
+
+BarVis.prototype.onTabChange = function(state_map){
+  this.stateMap = state_map;
+  this.updateVis();
+}
+
+//-------------------- END EVENT HANDLERS ------------------------------------
 //-------------------- BEGIN UPDATE METHODS ----------------------------------
 BarVis.prototype.updateVis = function(){
   var that = this;
@@ -309,39 +339,6 @@ BarVis.prototype.updateVis = function(){
 }
 
 //-------------------- END UPDATE METHODS ------------------------------------
-
-//-------------------- BEGIN EVENT HANDLERS-----------------------------------
-BarVis.prototype.onTypeChange = function(state_map){
-  this.stateMap = state_map;
-  this.updateVis();
-}
-
-BarVis.prototype.onLocationChange = function(state_map){
-  var that = this;
-  this.stateMap = state_map;
-  var tab = this.stateMap.barTab;
-  if (tab === 'crime_stat' || tab === 'per_capita'){
-    this.bar.classed('test_border', function(d)
-      { if(d.key == that.stateMap.location) return true;})
-  }
-  else if (tab === 'day_of_week' || tab === 'hour_of_day'){
-    this.updateVis();
-  }
-}
-
-BarVis.prototype.onTimeChange = function(state_map, filtered_data){
-  this.stateMap = state_map;
-  this.filteredData = filtered_data;
-  this.updateVis();
-}
-
-BarVis.prototype.onTabChange = function(state_map){
-  this.stateMap = state_map;
-  this.updateVis();
-}
-
-//-------------------- END EVENT HANDLERS ------------------------------------
-
 //-------------------- BEGIN INIT METHODS ------------------------------------  
 BarVis.prototype.initVis = function(){
   var that = this;
