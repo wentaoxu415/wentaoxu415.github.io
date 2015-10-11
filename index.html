@@ -78,25 +78,25 @@
     <!-- Checkboxes -->
     <div class="row category"><span><b>Crime Types</b></span>
       <ul class="list-group paper_checkbox_bottom">
-        <paper-checkbox class='paper_switch' name='assault' checked>
+        <paper-checkbox class='paper_switch' name='assault'>
           <div id="assault_label">Assault</div>
         </paper-checkbox>
-        <paper-checkbox class='paper_switch' name='burglary' checked>
+        <paper-checkbox class='paper_switch' name='burglary'>
           <div id="burglary_label">Burglary</div>
         </paper-checkbox>
-        <paper-checkbox class='paper_switch' name='drug' checked>
+        <paper-checkbox class='paper_switch' name='drug'>
           <div id="drug_label">Drug</div>
         </paper-checkbox>
         <paper-checkbox class='paper_switch' name='homicide' checked>
           <div id="homicide_label">Homicide</div>
         </paper-checkbox>
-        <paper-checkbox class='paper_switch' name='robbery' checked>
+        <paper-checkbox class='paper_switch' name='robbery'>
           <div id="robbery_label">Robbery</div>
         </paper-checkbox>
-        <paper-checkbox class='paper_switch' name='sexOffense' checked>
+        <paper-checkbox class='paper_switch' name='sexOffense'>
           <div id="sexOffense_label">Sex Offense</div>
         </paper-checkbox>
-        <paper-checkbox class='paper_switch' name='weaponLaw' checked>
+        <paper-checkbox class='paper_switch' name='weaponLaw'>
           <div id="weaponLaw_label">Weapon Law</div>
         </paper-checkbox>
       </ul>
@@ -202,8 +202,8 @@ $(function(){
   },
   stateMap = {
     crimeType: {
-      assault: true, burglary: true, drug: true, homicide: true,
-      robbery: true, sexOffense: true, weaponLaw: true               
+      assault: false, burglary: false, drug: false, homicide: true,
+      robbery: false, sexOffense: false, weaponLaw: false               
     },
     // crimeType: {
     //   homicide: true,
