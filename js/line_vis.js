@@ -77,11 +77,11 @@ LineVis.prototype.countCrimes = function(){
       count_data[d.date][key] = 0;
     }
   })
-  
   location = this.stateMap.location;
   for (key in this.stateMap.crimeType){
     if (key in this.filteredData && this.stateMap.crimeType[key]){
       crime = this.filteredData[key].features;
+
       crime.forEach(function(d, i){
         if (location === 'city' || location === d.properties.zip){
           if (is_period_long){
@@ -211,7 +211,6 @@ LineVis.prototype.countDistrict = function(){
   }
   else{
     final_dataset = stack(d3.keys(this.populationData).map(function(name){
-      console.log(name);
       if (name != 'city'){
         return {
           name: name,
@@ -320,7 +319,6 @@ LineVis.prototype.countDayOfWeek = function(){
   }
   else{
     final_dataset = stack(d3.keys(dow_map).map(function(name){
-      console.log(name);
       if (name != 'city'){
         return {
           name: name,
@@ -424,7 +422,6 @@ LineVis.prototype.countHourOfDay = function(){
   }
   else{
     final_dataset = stack(hour_map.map(function(name){
-      console.log(name);
       if (name != 'city'){
         return {
           name: name,
@@ -536,11 +533,27 @@ LineVis.prototype.updateVis = function(){
     .attr('class', 'crime')
 
 
-  this.crime.append('path')
+  this.crime = this.crime.append('path')
     .attr('class', 'area')
     .attr('d', function(d){return that.area(d.values)})
-    .style('fill', function(d){return that.color(d.name);})
-
+    
+  var tab = this.stateMap.lineTab;
+  var day_color = d3.scale.category20();
+  var hour_color = d3.scale.ordinal()
+                    .range([])
+  var other_color = d3.scale.category20c();
+  if (tab == 'crime_type'){
+    this.crime
+      .style('fill', function(d){return that.color(d.name);})
+  }
+  else if (tab === 'day_of_week'){
+    this.crime
+      .style('fill', function(d){return day_color(d.name);}) 
+  }
+  else{
+    this.crime
+      .style('fill', function(d){return other_color(d.name);}) 
+  }
   
   this.svg.select('.x.axis')
     .transition()
@@ -552,7 +565,7 @@ LineVis.prototype.updateVis = function(){
     .duration(500)
     .call(this.yAxis)
 
-  var tab = this.stateMap.lineTab;
+
   var name_label;
   var name;
   if (tab == 'crime_type'){
@@ -671,7 +684,7 @@ LineVis.prototype.updateVis = function(){
 LineVis.prototype.initVis = function(){
   var that = this;
 
-  this.margin = {top: 10, right: 40, bottom: 30, left: 40}
+  this.margin = {top: 0, right: 0, bottom: 20, left: 40}
   
   this.width = parseInt(d3.select("#line_chart").style("width")) 
   - this.margin.left - this.margin.right;
@@ -708,9 +721,15 @@ LineVis.prototype.initVis = function(){
   this.stack = d3.layout.stack()
     .values(function(d){return d.values;})
 
-  this.svg = d3.select('#line_chart').append('svg')
-    .attr('width', this.width + this.margin.left + this.margin.right)
-    .attr('height', this.height + this.margin.top + this.margin.bottom)
+  this.svg = d3.select('#line_chart')
+    .append('div')
+    .classed('svg-container', true)
+    .append('svg')
+    // .attr('width', this.width + this.margin.left + this.margin.right)
+    // .attr('height', this.height)
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 " + (this.width+50)+ " " + (this.height+20))
+    .classed("svg-content-responsive", true)
     .append('g')
     .attr('transform', 'translate(' 
       + this.margin.left + ',' + this.margin.top + ')');

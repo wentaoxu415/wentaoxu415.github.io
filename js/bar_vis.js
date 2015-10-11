@@ -343,7 +343,7 @@ BarVis.prototype.updateVis = function(){
 BarVis.prototype.initVis = function(){
   var that = this;
   
-  this.margin = {top: 10, right: 40, bottom: 30, left: 40}
+  this.margin = {top: 0, right: 0, bottom: 20, left: 40}
   
   this.width = parseInt(d3.select("#bar_chart").style("width")) 
   - this.margin.left - this.margin.right;
@@ -355,21 +355,27 @@ BarVis.prototype.initVis = function(){
     .rangeRoundBands([0, this.width], .1);
 
   this.y = d3.scale.linear()
-    .rangeRound([this.height, 0]);
+    .rangeRound([this.height-10, 0]);
 
   this.color = d3.scale.ordinal()
     .range(['#fdb462', '#b3de69', '#8dd3c7', '#fed976', 
     '#fccde5', '#bebada', '#bc80bd']);
 
-  this.svg = d3.select("#bar_chart").append("svg")
-    .attr('width', this.width + this.margin.left + this.margin.right)
-    .attr('height', this.height + this.margin.top + this.margin.bottom)
+  this.svg = d3.select("#bar_chart")
+    .append('div')
+    .classed('svg-container', true)
+    .append("svg")
+    // .attr('width', this.width)
+    // .attr('height', this.height)
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .attr("viewBox", "0 0 " + (this.width+50)+ " " + (this.height+20))
+    .classed("svg-content-responsive", true)
     .append('g')
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 
   this.svg.append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + this.height + ')')
+    .attr('transform', 'translate(0,' + (this.height-15) + ')')
 
   this.svg.append('g')
     .attr('class', 'y axis')
@@ -380,6 +386,7 @@ BarVis.prototype.initVis = function(){
     .attr('dy', '.71em')
     .style('text-anchor', 'middle')
     .text('Crime Incidents')
+
 
   this.updateVis();
 

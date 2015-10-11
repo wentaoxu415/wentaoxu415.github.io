@@ -46,27 +46,73 @@ DonutVis.prototype.countCrimes = function(){
 
 DonutVis.prototype.getDisplayData = function(district){
     var dataset= new Array();
-    for (var key in this.crimeStats[district]){
-      if(key != 'total'){
-        var stat = {label: key, count: this.crimeStats[district][key]};
-        dataset.push(stat);
-      }
+    if (this.crimeStats[district]['total'] == 0){
+      return false;
     }
-    return dataset;
+    else{
+      for (var key in this.crimeStats[district]){
+        if(key != 'total'){
+          var stat = {label: key, count: this.crimeStats[district][key]};
+          dataset.push(stat);
+        }
+      }
+      return dataset;
+  }
 }
+
+DonutVis.prototype.getCrimesPerCapita = function(district){
+  var crime, population;
+  crime = this.crimeStats[district]['total']
+  population = this.population[district]/1000
+  return crime/population;
+}
+
+DonutVis.prototype.getRelativeRisk = function(district){
+  var district_risk, city_crime, city_population, city_risk
+  district_risk = this.getCrimesPerCapita(district);
+  city_crime = this.crimeStats['city']['total'] 
+  city_population = this.population['city']/1000
+  city_risk = city_crime/city_population
+  return district_risk/city_risk;
+}
+
   //-------------------- END UTILITY METHODS ---------------------------------
-  
-  //---------------------BEGIN UPDATE METHODS---------------------------------
-  DonutVis.prototype.updateVis = function(){
+  DonutVis.prototype.zeroVis = function(){
     var that = this;
     var capita = d3.format(".2f"); 
     var comma = d3.format("0,000");
     var district = this.stateMap.location;
     
-    d3.select('#donut_location').html('<b><u>'+that.districtName[district]+'</u></b>');
-    d3.select('#donut_population').html(comma(that.population[district]) + ' (2013)');
-    d3.select('#donut_capita').html(capita(that.crimeStats[district]['total']/
-    (that.population[district]/1000)) + ' (per 1000 People)');
+    d3.select('#donut_location').html('<b><u>'+this.districtName[district]+'</u></b>');
+    d3.select('#donut_crimes').html(this.crimeStats[district]['total'])
+    d3.select('#donut_population').html(comma(this.population[district]) + ' (2013)');
+    d3.select('#donut_capita').html(capita(this.getCrimesPerCapita(district)) + ' (per 1000 People)');
+    d3.select('#relative_risk').html(capita(this.getRelativeRisk(district)));
+    d3.select('.donut_detach').remove() 
+    this.stateMap.zeroVis = true;
+
+  }
+
+  //---------------------BEGIN UPDATE METHODS---------------------------------
+  DonutVis.prototype.updateVis = function(){
+    if (!this.displayData){
+      this.zeroVis()
+    }
+    else if (this.stateMap.zeroVis){
+      this.initVis();
+      this.stateMap.zeroVis = false;
+    }
+    else{
+    var that = this;
+    var capita = d3.format(".2f"); 
+    var comma = d3.format("0,000");
+    var district = this.stateMap.location;
+    
+    d3.select('#donut_location').html('<b><u>'+this.districtName[district]+'</u></b>');
+    d3.select('#donut_crimes').html(this.crimeStats[district]['total'])
+    d3.select('#donut_population').html(comma(this.population[district]) + ' (2013)');
+    d3.select('#donut_capita').html(capita(this.getCrimesPerCapita(district)) + ' (per 1000 People)');
+    d3.select('#relative_risk').html(capita(this.getRelativeRisk(district)));
 
     this.pie.value(function(d){return d.count;})
       
@@ -74,16 +120,6 @@ DonutVis.prototype.getDisplayData = function(district){
       .transition()
       .duration(2000)
       .attrTween("d", arcTween);
-
-    // this.path.exit()
-    //   .remove();
-
-    // this.path.enter()
-    // .append('path')
-    // .attr('d', this.arc)
-    // .attr('fill', function(d, i){
-    //   return (that.color(d.data.label));
-    // })
 
   this.path.on('mouseover', function(d){
     var total = d3.sum(that.displayData.map(function(d){
@@ -147,6 +183,7 @@ DonutVis.prototype.getDisplayData = function(district){
       return that.arc(i(t));
     };
   }
+  }
 }
   //-------------------- END UPDATE METHODS-----------------------------------
 
@@ -167,8 +204,7 @@ DonutVis.prototype.getDisplayData = function(district){
     this.updateVis();
   }
 
-  DonutVis.prototype.onDatesChange = function(state_map, filtered_data){
-    var that = this;
+  DonutVis.prototype.onTimeChange = function(state_map, filtered_data){
     this.stateMap = state_map;
     this.filteredData = filtered_data
     this.countCrimes();
@@ -179,36 +215,62 @@ DonutVis.prototype.getDisplayData = function(district){
 
   //-------------------- END EVENT HANDLERS ----------------------------------
 
-  //-------------------- BEGIN PUBLIC METHODS --------------------------------  
+  //-------------------- BEGIN INIT METHOD -----------------------------------  
  DonutVis.prototype.initVis = function(){
   var that = this;
-  var capita = d3.format(".2f"); 
-  var comma = d3.format("0,000");
-  var district = this.stateMap.location;
+  var capita, comma, district;
+  
+  capita = d3.format(".2f"); 
+  comma = d3.format("0,000");
+  district = this.stateMap.location;
+  
   this.countCrimes();
-    d3.select('#donut_location').html('<b><u>'+that.districtName[district]+'</u></b>');
-    d3.select('#donut_population').html(comma(that.population[district]) + ' (2013)');
-    d3.select('#donut_capita').html(capita(that.crimeStats[district]['total']/
-    (that.population[district]/1000)) + ' (per 1000 People)');
+
+  d3.select('#donut_location').html('<b><u>'+that.districtName[district]+'</u></b>');
+  d3.select('#donut_population').html(comma(that.population[district]) + ' (2013)');
+  d3.select('#donut_crimes').html(that.crimeStats['city']['total'])
+  d3.select('#donut_capita').html(capita(this.getCrimesPerCapita(district)) + ' (per 1000 People)');
+  d3.select('#relative_risk').html(capita(this.getRelativeRisk(district)));
 
   this.displayData = this.getDisplayData(this.stateMap.location);
 
-
-  this.width = parseInt(d3.select("#donut_chart").style("width"));
-  this.height = parseInt(d3.select("#donut_chart").style("height"));
-  // width = 100;
-  // height = 100;
+  this.margin = {top: 0, right: 20, bottom: 20, left: 0}
+  this.width = parseInt(d3.select("#donut_chart").style("width")) -
+              this.margin.left - this.margin.right;
+  this.height = parseInt(d3.select("#donut_chart").style("height")) - 
+              this.margin.top - this.margin.bottom;
+  
   this.radius = Math.min(this.width, this.height) / 2;
   
   this.color = d3.scale.ordinal()
   .range(['#fdb462', '#b3de69', '#8dd3c7', '#fed976', '#fccde5', '#bebada', '#bc80bd']); 
 
   this.svg = d3.select('#donut_chart')
+    .append('div')
+    .classed("svg-container", true)
     .append('svg')
-    .attr('width', this.width)
-    .attr('height', this.height)
+    // .attr('width', this.width)
+    // .attr('height', this.height)
+    .attr("viewBox", "0 0 " + (this.width)+ " " + (this.height))
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .classed("svg-content-responsive", true)
     .append('g')
     .attr('transform', 'translate(' + (this.width / 2) + ',' + (this.height / 2) + ')')
+    .attr('class', 'donut_detach')
+
+
+   
+  // function updateWindow(){
+  //   that.svg
+  //     .attr('width', parseInt(d3.select("#donut_chart").style("width")) -
+  //             that.margin.left - that.margin.right)
+  //     .attr('height', parseInt(d3.select("#donut_chart").style("height")) - 
+  //             that.margin.top - that.margin.bottom)
+  // }
+  // window.onresize = updateWindow()
+
+
+
 
   this.arc = d3.svg.arc()
     .innerRadius(this.radius - 25)
@@ -227,13 +289,13 @@ DonutVis.prototype.getDisplayData = function(district){
 
   // this.svg.call(tip);
 
-    this.path = this.svg.selectAll('path')
+  this.path = this.svg.selectAll('path')
       .data(this.pie(this.displayData))
 
-    this.path.exit()
-      .remove();
+  // this.path.exit()
+  //     .remove();
 
-    this.path.enter()
+  this.path.enter()
     .append('path')
     .attr('d', this.arc)
     .attr('fill', function(d, i){
@@ -242,6 +304,20 @@ DonutVis.prototype.getDisplayData = function(district){
     .each(function(d) {this._current = d; }) 
     .classed("donut", true)
    
+
+  this.tooltip = d3.select('#donut_chart')
+    .append('div')
+    .attr('class', 'tooltip_donut');
+
+  this.tooltip.append('div')
+    .attr('class', 'label_donut');
+
+  this.tooltip.append('div')
+    .attr('class', 'count');
+
+  this.tooltip.append('div')
+    .attr('class', 'percent');
+
   this.path.on('mouseover', function(d){
     var total = d3.sum(that.displayData.map(function(d){
       return d.count;
@@ -256,7 +332,6 @@ DonutVis.prototype.getDisplayData = function(district){
   this.path.on('mouseout', function(){
     that.tooltip.style('display', 'none');
   });
-
 
   this.legend_rect_size = 8;
   this.legend_spacing = 2;
@@ -284,19 +359,6 @@ DonutVis.prototype.getDisplayData = function(district){
     .attr('x', this.legend_rect_size + this.legend_spacing)
     .attr('y', this.legend_rect_size)
     .text(function(d){return d;})
-
-  this.tooltip = d3.select('#donut_chart')
-    .append('div')
-    .attr('class', 'tooltip_donut');
-
-  this.tooltip.append('div')
-    .attr('class', 'label_donut');
-
-  this.tooltip.append('div')
-    .attr('class', 'count');
-
-  this.tooltip.append('div')
-    .attr('class', 'percent');
 
  }
 

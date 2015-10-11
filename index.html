@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" type="text/css">
   <link rel="stylesheet" href="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" type="text/css"  />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="js/libs/leaflet.awesome-markers.css">
   
   <!-- Personal Stylesheets -->
   <link rel="stylesheet" href="css/customized.css">
@@ -24,22 +25,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
   <script src="http://d3js.org/queue.v1.min.js"></script>
   <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-  <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js" type="text/javascript"></script>
   <script src="http://cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
   <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-560a427f4f89f17f" type="text/javascript" async="async"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js" type="text/javascript"></script>
+  
   <!-- Personal Libraries -->
-  <script src="js/libs/leaflet.spin.js" type="text/javascript"></script>
+  <script src="js/libs/leaflet.spin.js" type="text/javascript"></script> 
   <script src="js/libs/l.control.geosearch.js" type="text/javascript"></script>
   <script src="js/libs/l.geosearch.provider.google.js" type="text/javascript"></script>
   <script src="js/libs/easybutton.js" type="text/javascript"></script>
+  <script src="js/libs/leaflet.awesome-markers.js" type="text/javascript"></script>
   <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js" type="text/javascript"></script>
-  <script src="js/map_vis_test.js" type="text/javascript"></script>
+  <script src="js/map_vis.js" type="text/javascript"></script>
   <script src="js/donut_vis.js" type="text/javascript"></script>
   <script src="js/bar_vis.js" type="text/javascript"></script>
   <script src="js/line_vis.js" type="text/javascript"></script>
 
   <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+
 </head>
 
 <body>
@@ -65,186 +69,245 @@
       </ul>
     </div>    
   </div>
-    <!-- /.container -->
 </nav>
 
+<!-- Content -->
 <div class="container" id="app">
+  <!-- Menu Display -->
   <div class="col-xs-2" id="menu">
+    <!-- Checkboxes -->
     <div class="row category"><span><b>Crime Types</b></span>
-    <ul class="list-group paper_checkbox_bottom">
-      <paper-checkbox class='paper_switch' name='assault'>
-        <div id="assault_label">Assault</div>
-      </paper-checkbox>
-      <paper-checkbox class='paper_switch' name='burglary'>
-        <div id="burglary_label">Burglary</div>
-      </paper-checkbox>
-      <paper-checkbox class='paper_switch' name='drug'>
-        <div id="drug_label">Drug</div>
-      </paper-checkbox>
-      <paper-checkbox class='paper_switch' name='homicide' checked>
-        <div id="homicide_label">Homicide</div>
-      </paper-checkbox>
-      <paper-checkbox class='paper_switch' name='robbery'>
-        <div id="robbery_label">Robbery</div>
-      </paper-checkbox>
-      <paper-checkbox class='paper_switch' name='sexOffense'>
-        <div id="sexOffense_label">Sex Offense</div>
-      </paper-checkbox>
-      <paper-checkbox class='paper_switch' name='weaponLaw'>
-        <div id="weaponLaw_label">Weapon Law</div>
-      </paper-checkbox>
-    </ul>
+      <ul class="list-group paper_checkbox_bottom">
+        <paper-checkbox class='paper_switch' name='assault' checked>
+          <div id="assault_label">Assault</div>
+        </paper-checkbox>
+        <paper-checkbox class='paper_switch' name='burglary' checked>
+          <div id="burglary_label">Burglary</div>
+        </paper-checkbox>
+        <paper-checkbox class='paper_switch' name='drug' checked>
+          <div id="drug_label">Drug</div>
+        </paper-checkbox>
+        <paper-checkbox class='paper_switch' name='homicide' checked>
+          <div id="homicide_label">Homicide</div>
+        </paper-checkbox>
+        <paper-checkbox class='paper_switch' name='robbery' checked>
+          <div id="robbery_label">Robbery</div>
+        </paper-checkbox>
+        <paper-checkbox class='paper_switch' name='sexOffense' checked>
+          <div id="sexOffense_label">Sex Offense</div>
+        </paper-checkbox>
+        <paper-checkbox class='paper_switch' name='weaponLaw' checked>
+          <div id="weaponLaw_label">Weapon Law</div>
+        </paper-checkbox>
+      </ul>
     </div>
-    <div class="row category"><span><b>Date Range</b></span>
-      <input class="datepicker" type="text" name="daterange" value="01/01/2015 - 01/31/2015" />
+    <!-- Date Range Picker -->
+    <div class="row category">
+      <span><b>Date Range</b></span>
+      <input class="datepicker" type="text" name="daterange" 
+             value="01/01/2015 - 01/31/2015" />
     </div>
-    <div class="row category"><span><b>Time Range</b></span>
-      <input class="datepicker" type="text" name="timerange" value="01/01/2015 0:00 AM  - 01/01/2015 11:59 PM" />
+    <!-- Time Range Picker -->
+    <div class="row category">
+      <span><b>Time Range</b></span>
+      <input class="datepicker" type="text" name="timerange" 
+             value="01/01/2015 0:00 AM  - 01/01/2015 11:59 PM" />
     </div>
-  <div class="row category before_switch"><span><b>Heat Map</b></span></div>
-  <div class="row category onoffswitch">
-    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
-    <label class="onoffswitch-label" for="myonoffswitch">
+    <!-- Toggle Switch for Heat Map -->
+    <div class="row category before_switch">
+      <span><b>Heat Map</b></span>
+    </div>
+    <div class="row category onoffswitch">
+      <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" 
+             id="myonoffswitch" checked>
+      <label class="onoffswitch-label" for="myonoffswitch">
         <span class="onoffswitch-inner"></span>
         <span class="onoffswitch-switch"></span>
-    </label>
+      </label>
+    </div>
+    <div class="row category">
+      <div class="addthis_sharing_toolbox" id="share_buttons"></div>
+    </div>
   </div>
-    <div class="row category"><div class="addthis_sharing_toolbox" id="share_buttons"></div></div>
-  </div>
-  <div class="col-xs-7" id="map">
-    <!-- Go to www.addthis.com/dashboard to customize your tools -->
-  </div>
+
+  <!-- Map Display -->
+  <div class="col-xs-7" id="map"></div>
+  
+  <!-- Charts Display -->
   <div class="col-xs-3" id="charts">
+    <!-- Donut Vis -->
     <div class="row chart_dimension" id="donut_vis">
       <div class="col-xs-12" id="donut_location">
       </div>
       <div class="col-xs-5" id='donut_info'>
         <div class="row donut">
-        <b>Population </b>
+          <b>Population </b>
         </div>
         <div class="row donut" id="donut_population">
         </div>  
         <div class="row donut">
-        <b>Crimes per Capita</b>
+          <b>Total Crimes </b>
+        </div>
+        <div class="row donut" id="donut_crimes">
+        </div> 
+        <div class="row donut">
+          <b>Crimes per Capita</b>
         </div>
         <div class="row donut" id="donut_capita">
         </div>  
+        <div class="row donut">
+          <b>Relative Danger </b>
+        </div>
+        <div class="row donut" id="relative_risk">
+        </div> 
       </div>
       <div class="col-xs-7" id="donut_chart">
       </div>
     </div>
+    <!-- Bar Vis -->
     <div class="row chart_dimension" id="bar_vis">
       <ul class="nav nav-tabs nav-justified side_tabs">
-        <li role="button" class="active"><a class="graph_tabs bar_chart" data-toggle="bar" id="crime_stat">Crimes</a></li>
-        <li role="button"><a class="graph_tabs bar_chart" data-toggle="bar" id="per_capita">Per Capita</a></li>
-        <li role="button"><a class="graph_tabs bar_chart" data-toggle="bar" id="day_of_week">Day of Week</a></li>
-        <li role="button"><a class="graph_tabs bar_chart" data-toggle="bar" id="hour_of_day">Hour of Day</a></li>
+        <li role="button" class="active"><a class="graph_tabs" data-toggle="bar" id="crime_stat">Crimes</a></li>
+        <li role="button"><a class="graph_tabs" data-toggle="bar" id="per_capita">Per Capita</a></li>
+        <li role="button"><a class="graph_tabs" data-toggle="bar" id="day_of_week">Day of Week</a></li>
+        <li role="button"><a class="graph_tabs" data-toggle="bar" id="hour_of_day">Hour of Day</a></li>
       </ul>
       <div class="col-xs-12 graph_area" id="bar_chart">
       </div>
     </div>
+    <!-- Line Vis -->
     <div class="row chart_dimension" id="line_vis">
       <ul class="nav nav-tabs nav-justified side_tabs">
         <li role="button" class="active"><a class="graph_tabs" data-toggle="line" id="crime_type">Crime Types</a></li>
-        <li role="button"><a class="graph_tabs bar_chart" data-toggle="line" id="district">Districts</a></li>
-        <li role="button"><a class="graph_tabs bar_chart" data-toggle="line" id="day_of_week">Day of Week</a></li>
-        <li role="button"><a class="graph_tabs bar_chart" data-toggle="line" id="hour_of_day">Hour of Day</a></li>
+        <li role="button"><a class="graph_tabs" data-toggle="line" id="district">Districts</a></li>
+        <li role="button"><a class="graph_tabs" data-toggle="line" id="day_of_week">Day of Week</a></li>
+        <li role="button"><a class="graph_tabs" data-toggle="line" id="hour_of_day">Hour of Day</a></li>
       </ul>
       <div class="col-xs-12 graph_area" id="line_chart">
       </div>
     </div>
+  <!-- END Charts Display -->  
   </div>
+  <!-- END Content -->
 </div>
 
 <script>
 $(function(){
 /*---------------------------BEGIN MODULE VARIABLES-------------------------*/
-  var map_vis, geographyData, populationData,
+  var geographyData, districtData, centerData, populationData, parseTime, getHourMin,
   originalData = {
-    homicide: null, sexOffense: null
+    assault: null, burglary: null, drug: null, homicide: null, 
+    robbery: null, sexOffense: null, weaponLaw: null
+    // homicide: null
   },
   stateMap = {
     crimeType: {
-      assault: false, burglary: false, drug: false, homicide: true,
-      robbery: false, sexOffense: false, weaponLaw: false               
+      assault: true, burglary: true, drug: true, homicide: true,
+      robbery: true, sexOffense: true, weaponLaw: true               
     },
-    startDate: '01/01/2003', endDate: '08/31/2015',
+    // crimeType: {
+    //   homicide: true,
+           
+    // },
+    startDate: '01/01/2012', endDate: '09/25/2015',
     startTime: '00:00', endTime: '23:59',
+    heatMap: true,
     location: 'city',
     barTab: 'crime_stat',
-    lineTab: 'crime_type'
+    lineTab: 'crime_type',
+    zeroVis: false
   };
 
 /*---------------------------END MODULE VARIABLES---------------------------*/
 
 /*---------------------------BEGIN HELPER METHODS-------------------------*/ 
   
-  // Parses the date in string form and converts into time format x
-  var parseTime = d3.time.format("%H:%M").parse;
-  // Takes in a time and returns military time x
-  var getTime = d3.time.format("%H:%M");
+  
+  // Parses time in string form and returns the time as Date object
+  parseTime = d3.time.format("%H:%M").parse;
+  
+  // Takes in a Date object and returns military time
+  getHourMin = d3.time.format("%H:%M");
 
-  // Purpose: 
-  //  * To update both start and end dates in stateMap based on users' 
-  // selection from the date range picker. 
-  // Arguments: 
-  //  * start_date (MM/DD/YYYY)
-  //  * end_date (MM/DD/YYYY)
-  // Returns: 
-  // * New dates in the stateMap.startDate and stateMap.endDate
+  // Updates crime types in stateMap when checkbox is updated
+  function updateCrimeType(type, bool){
+    stateMap.crimeType[type] = bool;
+  }
+
+  // Updates both start and end date in stateMap when date range is updated
   function updateDate(start_date, end_date){
     stateMap.startDate = start_date;
     stateMap.endDate = end_date;
   }
 
+  // Updates both start and end time in stateMap when time range is updated
   function updateTime(start_time, end_time){
     stateMap.startTime = start_time;
     stateMap.endTime = end_time;
   }
 
+  // Updates location in stateMap when a district on the map is selected
   function updateLocation(location){
     stateMap.location = location;
   }
 
+  // Updates bar tab in stateMap when a new bar tab is selected
   function updateBarTab(tab){
     stateMap.barTab = tab;
   }
 
+  // Updates bar tab in stateMap when a new bar tab is selected
   function updateLineTab(tab){
     stateMap.lineTab = tab;
   }
 
-  function updateCrimeType(type, bool){
-    stateMap.crimeType[type] = bool;
-  }
-
-  function isInDateRange(date, start_date, end_date){
+  // Purpose: 
+  // * Checks if a given date is within the date range stored in stateMap
+  // Arguments:
+  // * 1) Date in question
+  // Returns:
+  // * True if date is in the stateMap's daterange. False otherwise. 
+  function isInDateRange(date){
+    var start_date, end_date; 
     date =  new Date(date);
-    start_date = new Date(start_date);
-    end_date = new Date(end_date);
+    start_date = new Date(stateMap.startDate);
+    end_date = new Date(stateMap.endDate);
     if ((date >= start_date) && (date <= end_date)) return true;
     else return false;
   }
 
-  function isInTimeRange(time, start_time, end_time){
-    time = getTime(parseTime(time))
-    start_time = getTime(parseTime(start_time))
-    end_time = getTime(parseTime(end_time))
+  // Purpose: 
+  // * Checks if a given time is within the time range stored in stateMap
+  // Arguments:
+  // * 1) Time in question
+  // Returns:
+  // * True if time is in the stateMap's timerange. False otherwise. 
+  function isInTimeRange(time){
+    var start_time, end_time;
+    time = getHourMin(parseTime(time))
+    start_time = getHourMin(parseTime(stateMap.startTime))
+    end_time = getHourMin(parseTime(stateMap.endTime))
     if ( (time >= start_time) && (time <= end_time)) return true;
     else return false;
   }
 
-  function filterData(start_date, end_date, start_time, end_time){
-    var filtered_data = new Array();
-    for (var key in originalData){
+  // Purpose: 
+  // * Filters the original data based on selected date and time range
+  // Arguments:
+  // * None
+  // Returns:
+  // * Returns filtered data that met the selected date and time rance
+  function filterData(){
+    var filtered_data = {};
+    var key;
+    for (key in originalData){
       filtered_data[key] = {features : null};
-      var result = new Array();
+      var result = [];
       originalData[key].features.forEach(function(d, i){
-        if (isInDateRange(d.properties.date, start_date, end_date)) {
-           if (isInTimeRange(d.properties.time, start_time, end_time)) {
+        if (isInDateRange(d.properties.date) && 
+            isInTimeRange(d.properties.time)){
             result.push(d)
           }
-        }
       })
       filtered_data[key].features = result;
     }
@@ -252,30 +315,40 @@ $(function(){
   }
 /*---------------------------END HELPER METHODS---------------------------*/
 
-/*---------------------------BEGIN PUBLIC METHODS---------------------------*/
+/*---------------------------BEGIN initModule METHOD------------------------*/
 
-function initModule(error, geography, population, districts, homicide, sexOffense){
-  var event_handler, map_vis, donut_vis, bar_vis, line_vis;
+function initModule(error, geography, population, districts, center, assault, burglary, drug, homicide, robbery, sexOffense, weaponLaw){
+// function initModule(error, geography, population, districts, center, homicide){
+  var event_handler, map_vis, donut_vis, bar_vis, line_vis, filtered_data;
 
+  // Event handler is used to detect and respond to user inputs 
   event_handler = new Object();
+
   if(error){
+    console.log(error);
     throw error;
   }
   else{
     geographyData = geography;
     populationData = population;
     districtData = districts;
+    centerData = center;
+    originalData['assault'] = assault
+    originalData['burglary'] = burglary
+    originalData['drug'] = drug
     originalData['homicide'] = homicide;
+    originalData['robbery'] = robbery
     originalData['sexOffense'] = sexOffense
+    originalData['weaponLaw'] = weaponLaw
   }
-
+ 
   map_vis = new MapVis(d3.select("#map"), geographyData, populationData, 
-            districtData, originalData, stateMap, event_handler);
+            districtData, centerData, originalData, stateMap, event_handler);
   donut_vis = new DonutVis(d3.select("#donut_vis"), populationData, 
             districtData, originalData, stateMap);
   bar_vis = new BarVis(d3.select("#bar_vis"), populationData, 
             districtData, originalData, stateMap);
-  line_vis = new LineVis(d3.select("line_chart"), populationData, 
+  line_vis = new LineVis(d3.select("#line_chart"), populationData, 
             districtData, originalData, stateMap);
 
   
@@ -294,14 +367,9 @@ function initModule(error, geography, population, districts, homicide, sexOffens
   })
 
   $(event_handler).bind('timeChanged', function(event){
-    var start_date, end_date, start_time, end_time;
-    start_date = stateMap.startDate;
-    end_date = stateMap.endDate;
-    start_time = stateMap.startTime;
-    end_time = stateMap.endTime;
-    filtered_data = filterData(start_date, end_date, start_time, end_time);
-    map_vis.updateDateAndTime(filtered_data);
-    donut_vis.onDatesChange(stateMap, filtered_data);
+    filtered_data = filterData();
+    map_vis.onTimeChange(filtered_data);
+    donut_vis.onTimeChange(stateMap, filtered_data);
     bar_vis.onTimeChange(stateMap, filtered_data);
     line_vis.onTimeChange(stateMap, filtered_data);
   })
@@ -329,20 +397,24 @@ function initModule(error, geography, population, districts, homicide, sexOffens
     updateCrimeType(crime_type, is_checked);
     map_vis.map.spin(true);
     setTimeout(function(){
-      map_vis.updateCrimeTypes(is_checked, crime_type, stateMap);
+      map_vis.onTypeChange(is_checked, crime_type, stateMap);
     }, 50);
     });
 
-  // Initializes the daterange values and triggers datesChanged event handler 
-  // upon changed
+  $('#myonoffswitch').click(function(e){
+    var is_checked = e.currentTarget.checked;
+    stateMap.heatMap = is_checked;
+    map_vis.onHeatChange(stateMap);
+  })
+  // Initializes the date range values and triggers timeChanged event 
   $(function() {
     $('input[name="daterange"]').daterangepicker({
       autoApply: true,
       linkedCalendars: false,
-      startDate: "01/01/2003",
-      endDate: "08/31/2015",
-      minDate: "01/01/2003",
-      maxDate: "08/31/2015",
+      startDate: "01/01/2012",
+      endDate: "09/25/2015",
+      minDate: "01/01/2012",
+      maxDate: "09/25/2015",
       timeZone: 0
       }, 
       function(_start_date, _end_date) {
@@ -356,6 +428,7 @@ function initModule(error, geography, population, districts, homicide, sexOffens
     });
   });
 
+  // Initializes the time range values and triggers timeChanged event 
   $(function() {
   $('input[name="timerange"]').daterangepicker({
     timePicker: true,
@@ -378,27 +451,33 @@ function initModule(error, geography, population, districts, homicide, sexOffens
       var start_time, end_time;
       start_time = new Date(_start_time);
       end_time = new Date(_end_time);
-      start_time = getTime(parseTime(start_time.getHours()+":"+start_time.getMinutes()));
-      end_time = getTime(parseTime(end_time.getHours()+":"+end_time.getMinutes()));
+      start_time = getHourMin(parseTime(start_time.getHours()+
+                ":"+start_time.getMinutes()));
+      end_time = getHourMin(parseTime(end_time.getHours()+
+                ":"+end_time.getMinutes()));
       updateTime(start_time, end_time);
       $(event_handler).trigger('timeChanged');
     });
   });
-
-
-/*---------------------------END EVENT HANDLERS-----------------------------*/  
-  
+/*-------------------------- END EVENT HANDLERS ----------------------------*/  
 }; 
-/*---------------------------END PUBLIC METHODS-----------------------------*/
-
+/*-------------------------- END PUBLIC METHODS ----------------------------*/
+/*-------------------------- BEGIN DATA LOAD -------------------------------*/
 queue()
-.defer(d3.json, 'data/sf-neighborhoods.json')
+.defer(d3.json, 'data/sf-neighborhoods.min.json')
 .defer(d3.json, 'data/population.json')
 .defer(d3.json, 'data/districts.json')
-.defer(d3.json, 'data/homicide.min.json')
-.defer(d3.json, 'data/sexOffense.min.json')
+.defer(d3.json, 'data/center.json')
+.defer(d3.json, 'data/assault_12.min.json')
+.defer(d3.json, 'data/burglary_12.min.json')
+.defer(d3.json, 'data/drug_12.min.json')
+.defer(d3.json, 'data/homicide_12.min.json')
+.defer(d3.json, 'data/robbery_12.min.json')
+.defer(d3.json, 'data/sexOffense_12.min.json')
+.defer(d3.json, 'data/weaponLaw_12.min.json')
 .await(initModule);
 });
+/*-------------------------- END DATA LOAD ---------------------------------*/
 </script>
 </body>
 </html>

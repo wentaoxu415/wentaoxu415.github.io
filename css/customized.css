@@ -159,12 +159,48 @@ path:hover {
 
 path.donut:hover {
   stroke: silver;
-  stroke-width: 3px;
+  stroke-width: 1px;
+}
+
+.assault{
+  fill: #fdb462;
+  fill-opacity: 0.7;
+  stroke: #bc80bd;
+  stroke-width: 0.5px;
+}
+
+.assault:hover{
+  fill: yellow;
+  fill-opacity: 0.7;
+}
+
+.burglary{
+  fill: #b3de69;
+  fill-opacity: 0.7;
+  stroke: #bc80bd;
+  stroke-width: 0.5px;
+}
+
+.burglary:hover{
+  fill: yellow;
+  fill-opacity: 0.7;
+}
+
+.drug{
+  fill: #8dd3c7;
+  fill-opacity: 0.7;
+  stroke: #bc80bd;
+  stroke-width: 0.5px;
+}
+
+.drug:hover{
+  fill: yellow;
+  fill-opacity: 0.7;
 }
 
 .homicide{
   fill: #ffffb3;
-  fill-opacity: .5;
+  fill-opacity: 0.7;
   stroke: #bc80bd;
   stroke-width: 0.5px;
 }
@@ -174,9 +210,21 @@ path.donut:hover {
 	fill-opacity: 0.7;
 }
 
+.robbery{
+  fill: #fccde5;
+  fill-opacity: 0.7;
+  stroke: #bc80bd;
+  stroke-width: 0.5px;
+}
+
+.robbery:hover{
+  fill: yellow;
+  fill-opacity: 0.7;
+}
+
 .sexOffense{
   fill: #bebada;
-  fill-opacity: .5;
+  fill-opacity: 0.7;
   stroke: #bebada;
   stroke-width: 0.5px;
 }
@@ -184,6 +232,18 @@ path.donut:hover {
 .sexOffense:hover{
 	fill: yellow;
 	fill-opacity: 0.7;
+}
+
+.weaponLaw{
+  fill: #bc80bd;;
+  fill-opacity: 0.7;
+  stroke: #bc80bd;
+  stroke-width: 0.5px;
+}
+
+.weaponLaw:hover{
+  fill: yellow;
+  fill-opacity: 0.7;
 }
 
 .checkbox{
@@ -198,6 +258,7 @@ path.donut:hover {
 .category{
 	margin-top: 20px;
   margin-left: 5%;
+  min-width: 80px;
 }
 
 .donut{
@@ -217,12 +278,8 @@ path.donut:hover {
 .axis line {
   fill: none;
   stroke: #000;
-/*  shape-rendering: optimize-speed;*/
 }
-/*.bar {
-  fill: steelblue;
-}
-*/
+
 .x.axis path {
   display: none;
 }
@@ -327,6 +384,8 @@ path.donut:hover {
 .chart_dimension{
   width: 100%;
   height: 33.3333%;
+  min-width: 320px;
+  min-height: 150px;
   padding-right: 0px;
   padding-left: 0px;
   margin-right: 0px;
@@ -503,12 +562,6 @@ paper-checkbox {
   padding-left: 10px;
 }
 
-
-
-
-
-
-
 #donut_chart{
   height: 80%;
   position: relative;
@@ -516,7 +569,7 @@ paper-checkbox {
 
 #donut_location{
   padding-top: 5px;
-  padding-left: 5px;
+  padding-left: 10px;
   height: 20%;
   font-size: 20px;
 
@@ -524,7 +577,7 @@ paper-checkbox {
 
 .row .donut{
   font-size: 12px;
-  padding-left: 5px;
+  padding-left: 10px;
 }
 
 .legend_donut{
@@ -625,13 +678,12 @@ paper-checkbox {
 }
 
 .area {
-  fill: steelblue;
   stroke-width: 0px;
 }
 
 .area:hover{
-  stroke: #000;
-  stroke-width: 0.5px;
+  stroke: silver;
+  stroke-width: 1px;
 }
 
 .focus circle {
@@ -650,7 +702,8 @@ paper-checkbox {
 }
 
 .onoffswitch {
-    position: relative; width: 80px;
+    position: relative; 
+    width: 80px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
 }
 .onoffswitch-checkbox {
@@ -698,4 +751,20 @@ paper-checkbox {
 }
 .before_switch{
   margin-bottom: -15px;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;    
+    height: 100%;
+   /* padding-bottom: 100%; /* aspect ratio */*/
+    vertical-align: top;
+    overflow: hidden;
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 10px;
+    left: 0;
 }
