@@ -368,14 +368,14 @@ BarVis.prototype.initVis = function(){
     // .attr('width', this.width)
     // .attr('height', this.height)
     .attr("preserveAspectRatio", "xMinYMin meet")
-    .attr("viewBox", "0 0 " + (this.width+50)+ " " + (this.height+20))
+    .attr("viewBox", "0 0 " + (this.width+70)+ " " + (this.height+20))
     .classed("svg-content-responsive", true)
     .append('g')
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 
   this.svg.append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + (this.height-15) + ')')
+    .attr('transform', 'translate(0,' + (this.height-5) + ')')
 
   this.svg.append('g')
     .attr('class', 'y axis')
