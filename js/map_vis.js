@@ -67,15 +67,9 @@ MapVis.prototype.onHeatChange = function(state_map){
 MapVis.prototype.onTypeChange = function(bool, crime, state_map){
   var that = this;
   stateMap = state_map;
-  // if (bool){
-  //   this.map.addLayer(this.displayLayers[crime])
-  //     .on('ready', this.map.spin(false))
-  // }
-  // else{
-  //   this.map.removeLayer(this.displayLayers[crime])
-  //     .on('ready', this.map.spin(false))
-  // }
+
   this.countCrimes();  
+  
   for (key in centerLocation){
     var each_icon = L.AwesomeMarkers.icon({
       icon: '',
@@ -85,12 +79,22 @@ MapVis.prototype.onTypeChange = function(bool, crime, state_map){
       html: crimeStats[key]['total']
     });
     numMarkers[key] = each_icon;
-  }
-  for (key in centerLocation){
+  
     this.map.removeLayer(numMarkerLayers[key]);
     var each_marker = L.marker(centerLocation[key], {icon: numMarkers[key]})
     numMarkerLayers[key] = each_marker;
     this.map.addLayer(numMarkerLayers[key])
+  }
+  var district = stateMap.location
+  if (district != 'city'){
+    if (bool){
+      this.map.removeLayer(numMarkerLayers[district])  
+      this.map.addLayer(this.displayLayers[crime][district])
+    }
+    else{
+      this.map.removeLayer(numMarkerLayers[district])  
+      this.map.removeLayer(this.displayLayers[crime][district])
+    }
   }
   this.map.on('ready', this.map.spin(false))
 
@@ -102,23 +106,43 @@ MapVis.prototype.onTypeChange = function(bool, crime, state_map){
 MapVis.prototype.onTimeChange = function(_filtered_data){
   var that = this;
   this.filteredData = _filtered_data;
-  
-  var key;
-  for (key in stateMap.crimeType){
+  for (key in that.filteredData){
     if (stateMap.crimeType[key]){
-      this.map.removeLayer(this.displayLayers[key])
-    }
-    this.displayLayers[key] = L.geoJson(this.filteredData[key], {
-          pointToLayer: function(feature, latlng){
-          return L.circle(latlng, 20, {className: key});
-          }
-    })
-
-    if (stateMap.crimeType[key]){
-      this.map.addLayer(this.displayLayers[key])
+      if (prev_district){
+        that.map.removeLayer(that.displayLayers[key][prev_district])
+      }
     }
   }
   this.countCrimes();
+  this.getDisplayData();
+
+  for (key in centerLocation){
+    var each_icon = L.AwesomeMarkers.icon({
+      icon: '',
+      markerColor: 'darkblue',
+      prefix: 'fa',
+      extraClasses: 'hey',
+      html: crimeStats[key]['total']
+    });
+    numMarkers[key] = each_icon;
+    this.map.removeLayer(numMarkerLayers[key]);
+    var each_marker = L.marker(centerLocation[key], {icon: numMarkers[key]})
+    numMarkerLayers[key] = each_marker;
+    this.map.addLayer(numMarkerLayers[key])
+  }
+  var district = stateMap.location
+  if (district != 'city'){
+    for (key in that.filteredData){
+      if (stateMap.crimeType[key]){
+        if (prev_district){
+          that.map.addLayer(that.displayLayers[key][prev_district])
+        }
+      }
+    }
+    // Remove number marker for the current district
+    this.map.removeLayer(numMarkerLayers[district])
+  }
+  this.map.on('ready', this.map.spin(false))
 
   this.displayLayers['neighborhood'].setStyle(getStyle);
 }
@@ -180,7 +204,49 @@ MapVis.prototype.returnHome = function(){
   prev_district = null;
 }
 /*-------------------------END HELPER METHODS-----------------------------*/
+MapVis.prototype.getDisplayData = function(){
+  var that = this;
+  var key, zip, temp_data = [];
+  for (key in this.filteredData){
+    this.displayLayers[key] = [];
+    temp_data[key] = [];
+    for (zip in centerLocation){
+        this.displayLayers[key][zip] = []
+        temp_data[key][zip] = {features: [], type: 'Feature Collection'};
+    }
+  }
 
+  // Format the data in a crime-zip-values pair
+  for (key in this.filteredData){
+      this.filteredData[key].features.forEach(function(d){
+        zip = d.properties.zip
+        if (zip != 'N/A'){
+          temp_data[key][zip].features.push(d);
+        }  
+      })
+  }
+
+  // Format the data as circles and push them into display layer
+  for (key in that.filteredData){
+    for (zip in population){
+      if (zip != 'city'){
+        this.displayLayers[key][zip] = L.geoJson(temp_data[key][zip], {
+          pointToLayer: function(feature, latlng){
+            content = "<span><b>Incident ID:</b> " + feature.id + "</span> <br>\
+            <span><b>Crime Type:</b> " + feature.properties.crime +"</span> <br>\
+            <span><b>Date:</b> " + feature.properties.date +"</span> <br>\
+            <span><b>Day of Week:</b> " + feature.properties.dow +"</span> <br>\
+            <span><b>Time:</b> " + feature.properties.time +"</span> <br>"
+
+            one_circle = L.circle(latlng, 20, {className: key})
+                              .bindPopup(content);
+            return one_circle
+          }
+        })
+      }
+    }
+  }
+}
 /*-------------------------BEGIN INIT METHODS------------------------------*/
 MapVis.prototype.initVis = function(){
   var that = this;
@@ -198,7 +264,7 @@ MapVis.prototype.initVis = function(){
     accessToken: 'pk.eyJ1Ijoid2VudGFveHUiLCJhIjoiY2llbjNtdW13MDVmMHJza20wY3B0ZnFoaCJ9.bCIlhzQz6O58tT9s0_z2Mw',
     minZoom: 11 })
   .addTo(this.map);
-  
+
   svg = d3.select(this.map.getPanes().overlayPane).append("svg")
   g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
@@ -207,7 +273,6 @@ MapVis.prototype.initVis = function(){
     lng: -122.439788,
     zoom: 12
   }; 
-
   home_button = L.easyButton('fa-home', function(btn){
     that.map.setView([home_location.lat, home_location.lng], home_location.zoom);
     that.returnHome();
@@ -248,28 +313,32 @@ MapVis.prototype.initVis = function(){
   
   function zoomToFeature(e){
 
-    var district = e.target.feature.properties.id;
-    this._map.fitBounds(e.target.getBounds());
+    this._map.spin(true);
+    setTimeout(function(){
+      var district = e.target.feature.properties.id;
+      that.map.fitBounds(e.target.getBounds());
 
-    stateMap.location = districtName[district];
-    if (district != prev_district){
-      this._map.removeLayer(numMarkerLayers[district])
-      if (prev_district){
-        this._map.addLayer(numMarkerLayers[prev_district])
-      }
-      for (key in that.filteredData){
-        if (stateMap.crimeType[key]){
-          if (prev_district){
-            this._map.removeLayer(that.displayLayers[key][prev_district])
-          }
-          if (crimeStats[district][key] > 0){
-            this._map.addLayer(that.displayLayers[key][district])  
+      stateMap.location = districtName[district];
+      if (district != prev_district){
+        that.map.removeLayer(numMarkerLayers[district])
+        if (prev_district){
+          that.map.addLayer(numMarkerLayers[prev_district])
+        }
+        for (key in that.filteredData){
+          if (stateMap.crimeType[key]){
+            if (prev_district){
+              that.map.removeLayer(that.displayLayers[key][prev_district])
+            }
+            if (crimeStats[district][key] > 0){
+              that.map.addLayer(that.displayLayers[key][district])  
+            }
           }
         }
+        prev_district = district;
+        $(eventHandler).trigger("locationChanged", district);
+        that.map.on('ready', that.map.spin(false));
       }
-      prev_district = district;
-      $(eventHandler).trigger("locationChanged", district);
-    }
+    }, 10)
   }
     
   function onEachFeature(feature, layer){
@@ -278,15 +347,7 @@ MapVis.prototype.initVis = function(){
     });
   }
 
-  var key, zip, temp_data = [];
-  for (key in this.filteredData){
-    this.displayLayers[key] = [];
-    temp_data[key] = [];
-    for (zip in centerLocation){
-        this.displayLayers[key][zip] = []
-        temp_data[key][zip] = {features: [], type: 'Feature Collection'};
-    }
-  }
+  this.getDisplayData();
 
   this.displayLayers["neighborhood"] = L.geoJson(geographyData, {
       onEachFeature: onEachFeature, 
@@ -295,34 +356,6 @@ MapVis.prototype.initVis = function(){
       .setZIndex(0)
       .addTo(this.map);
 
-  for (key in this.filteredData){
-      this.filteredData[key].features.forEach(function(d){
-        zip = d.properties.zip
-        if (zip != 'N/A'){
-          temp_data[key][zip].features.push(d);
-        }  
-      })
-  }
-
-  for (key in that.filteredData){
-    for (zip in population){
-      if (zip != 'city'){
-        this.displayLayers[key][zip] = L.geoJson(temp_data[key][zip], {
-          pointToLayer: function(feature, latlng){
-            content = "<span><b>Incident ID:</b> " + feature.id + "</span> <br>\
-            <span><b>Crime Type:</b> " + feature.properties.crime +"</span> <br>\
-            <span><b>Date:</b> " + feature.properties.date +"</span> <br>\
-            <span><b>Day of Week:</b> " + feature.properties.dow +"</span> <br>\
-            <span><b>Time:</b> " + feature.properties.time +"</span> <br>"
-
-            one_circle = L.circle(latlng, 20, {className: key})
-                              .bindPopup(content);
-            return one_circle
-          }
-        })
-      }
-    }
-  }
 
   numMarkers = []
   for (key in centerLocation){
@@ -330,7 +363,6 @@ MapVis.prototype.initVis = function(){
       icon: '',
       markerColor: 'darkblue',
       prefix: 'fa',
-      extraClasses: 'hey',
       html: crimeStats[key]['total']
     });
     numMarkers[key] = each_icon;

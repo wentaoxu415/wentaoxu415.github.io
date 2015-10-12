@@ -88,7 +88,9 @@ DonutVis.prototype.getRelativeRisk = function(district){
     d3.select('#donut_population').html(comma(this.population[district]) + ' (2013)');
     d3.select('#donut_capita').html(capita(this.getCrimesPerCapita(district)) + ' (per 1000 People)');
     d3.select('#relative_risk').html(capita(this.getRelativeRisk(district)));
-    d3.select('.donut_detach').remove() 
+    // d3.select('.donut_detach').remove() 
+    d3.select('.svg-container').remove();
+
     this.stateMap.zeroVis = true;
 
   }

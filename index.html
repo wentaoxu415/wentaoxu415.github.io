@@ -368,7 +368,8 @@ function initModule(error, geography, population, districts, center, assault, bu
 
   $(event_handler).bind('timeChanged', function(event){
     filtered_data = filterData();
-    map_vis.onTimeChange(filtered_data);
+    setTimeout(function(){
+      map_vis.onTimeChange(filtered_data);},10);
     donut_vis.onTimeChange(stateMap, filtered_data);
     bar_vis.onTimeChange(stateMap, filtered_data);
     line_vis.onTimeChange(stateMap, filtered_data);
@@ -398,7 +399,7 @@ function initModule(error, geography, population, districts, center, assault, bu
     map_vis.map.spin(true);
     setTimeout(function(){
       map_vis.onTypeChange(is_checked, crime_type, stateMap);
-    }, 50);
+    }, 10);
     });
 
   $('#myonoffswitch').click(function(e){
@@ -424,6 +425,7 @@ function initModule(error, geography, population, districts, center, assault, bu
         start_date = new Date(_start_date);
         end_date = new Date(_end_date);
         updateDate(start_date, end_date);
+        map_vis.map.spin(true);
         $(event_handler).trigger('timeChanged');
     });
   });
@@ -456,26 +458,37 @@ function initModule(error, geography, population, districts, center, assault, bu
       end_time = getHourMin(parseTime(end_time.getHours()+
                 ":"+end_time.getMinutes()));
       updateTime(start_time, end_time);
+      map_vis.map.spin(true);
       $(event_handler).trigger('timeChanged');
     });
   });
 /*-------------------------- END EVENT HANDLERS ----------------------------*/  
+  spinner.stop();
 }; 
 /*-------------------------- END PUBLIC METHODS ----------------------------*/
 /*-------------------------- BEGIN DATA LOAD -------------------------------*/
-queue()
-.defer(d3.json, 'data/sf-neighborhoods.min.json')
-.defer(d3.json, 'data/population.json')
-.defer(d3.json, 'data/districts.json')
-.defer(d3.json, 'data/center.json')
-.defer(d3.json, 'data/assault_12.min.json')
-.defer(d3.json, 'data/burglary_12.min.json')
-.defer(d3.json, 'data/drug_12.min.json')
-.defer(d3.json, 'data/homicide_12.min.json')
-.defer(d3.json, 'data/robbery_12.min.json')
-.defer(d3.json, 'data/sexOffense_12.min.json')
-.defer(d3.json, 'data/weaponLaw_12.min.json')
-.await(initModule);
+
+var target = document.getElementById('map')
+var spinner = new Spinner().spin(target);
+
+  function loadData(){
+
+    queue()
+    .defer(d3.json, 'data/sf-neighborhoods.min.json')
+    .defer(d3.json, 'data/population.json')
+    .defer(d3.json, 'data/districts.json')
+    .defer(d3.json, 'data/center.json')
+    .defer(d3.json, 'data/assault_12.min.json')
+    .defer(d3.json, 'data/burglary_12.min.json')
+    .defer(d3.json, 'data/drug_12.min.json')
+    .defer(d3.json, 'data/homicide_12.min.json')
+    .defer(d3.json, 'data/robbery_12.min.json')
+    .defer(d3.json, 'data/sexOffense_12.min.json')
+    .defer(d3.json, 'data/weaponLaw_12.min.json')
+    .await(initModule);
+  }
+
+  loadData();
 });
 /*-------------------------- END DATA LOAD ---------------------------------*/
 </script>
