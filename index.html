@@ -209,7 +209,7 @@ $(function(){
     //   homicide: true,
            
     // },
-    startDate: '01/01/2012', endDate: '09/25/2015',
+    startDate: '01/01/2015', endDate: '09/25/2015',
     startTime: '00:00', endTime: '23:59',
     heatMap: true,
     location: 'city',
@@ -412,9 +412,9 @@ function initModule(error, geography, population, districts, center, assault, bu
     $('input[name="daterange"]').daterangepicker({
       autoApply: true,
       linkedCalendars: false,
-      startDate: "01/01/2012",
+      startDate: "01/01/2015",
       endDate: "09/25/2015",
-      minDate: "01/01/2012",
+      minDate: "01/01/2015",
       maxDate: "09/25/2015",
       timeZone: 0
       }, 
@@ -478,13 +478,13 @@ var spinner = new Spinner().spin(target);
     .defer(d3.json, 'data/population.json')
     .defer(d3.json, 'data/districts.json')
     .defer(d3.json, 'data/center.json')
-    .defer(d3.json, 'data/assault_12.min.json')
-    .defer(d3.json, 'data/burglary_12.min.json')
-    .defer(d3.json, 'data/drug_12.min.json')
-    .defer(d3.json, 'data/homicide_12.min.json')
-    .defer(d3.json, 'data/robbery_12.min.json')
-    .defer(d3.json, 'data/sexOffense_12.min.json')
-    .defer(d3.json, 'data/weaponLaw_12.min.json')
+    .defer(d3.json, 'data/assault_15.min.json')
+    .defer(d3.json, 'data/burglary_15.min.json')
+    .defer(d3.json, 'data/drug_15.min.json')
+    .defer(d3.json, 'data/homicide_15.min.json')
+    .defer(d3.json, 'data/robbery_15.min.json')
+    .defer(d3.json, 'data/sexOffense_15.min.json')
+    .defer(d3.json, 'data/weaponLaw_15.min.json')
     .await(initModule);
   }
 

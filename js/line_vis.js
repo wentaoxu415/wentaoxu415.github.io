@@ -701,7 +701,7 @@ LineVis.prototype.initVis = function(){
   this.xAxis = d3.svg.axis()
     .scale(this.x)
     .orient('bottom')
-    .ticks(5);
+    .ticks(4)
 
   this.yAxis = d3.svg.axis()
     .scale(this.y)

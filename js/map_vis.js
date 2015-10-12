@@ -61,7 +61,8 @@ MapVis.prototype.countCrimes = function(){
 /*-------------------------BEGIN EVENT HANDLERS-----------------------------*/
 
 MapVis.prototype.onHeatChange = function(state_map){
-  stateMap = state_map;
+  stateMap = state_map; 
+  this.setLegend();
   this.displayLayers['neighborhood'].setStyle(getStyle);
 }
 MapVis.prototype.onTypeChange = function(bool, crime, state_map){
@@ -247,6 +248,35 @@ MapVis.prototype.getDisplayData = function(){
     }
   }
 }
+
+MapVis.prototype.setLegend = function(){
+  var that = this;
+  if (stateMap.heatMap){
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
+      var that = this;
+      var div, grades, count;
+      div = L.DomUtil.create('div', 'info legend'),
+      grades = [4.00, 2.00, 1.50, 1.00, 0.75, 0.5, 0.25, 0];
+      count = grades.length
+      div.innerHTML = '<h6>Ratio of Crimes per Capita <br>\
+                      (District Vs. City Average)</h6>'
+      
+      var i;
+      for (i = 0; i < count; i++) {
+          div.innerHTML += 
+              '<i style="background:' + getColor(grades[i]) + '"></i> ' +
+            (grades[i-1] ? (grades[i] + '&ndash;' + grades[i-1] + '<br>'): 
+            (grades[i]+'+'+'<br>'))
+      }
+      return div;
+    };
+    legend.addTo(that.map);
+  }
+  else{
+    d3.select('.info').remove();
+  }
+}
 /*-------------------------BEGIN INIT METHODS------------------------------*/
 MapVis.prototype.initVis = function(){
   var that = this;
@@ -375,27 +405,7 @@ MapVis.prototype.initVis = function(){
     this.map.addLayer(numMarkerLayers[key])
   }
 
-  legend = L.control({position: 'bottomright'});
-  legend.onAdd = function (map) {
-    var that = this;
-    var div, grades, count;
-    div = L.DomUtil.create('div', 'info legend'),
-    grades = [4.00, 2.00, 1.50, 1.00, 0.75, 0.5, 0.25, 0];
-    count = grades.length
-    div.innerHTML = '<h6>Ratio of Crimes per Capita <br>\
-                    (District Vs. City Average)</h6>'
-    
-    var i;
-    for (i = 0; i < count; i++) {
-        div.innerHTML += 
-            '<i style="background:' + getColor(grades[i]) + '"></i> ' +
-          (grades[i-1] ? (grades[i] + '&ndash;' + grades[i-1] + '<br>'): 
-          (grades[i]+'+'+'<br>'))
-    }
-    return div;
-  };
-  legend.addTo(this.map);
-
+  this.setLegend();
   search = new L.Control.GeoSearch({
     provider: new L.GeoSearch.Provider.Google(),
     position: 'topcenter',
