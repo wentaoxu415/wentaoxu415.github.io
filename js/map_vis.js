@@ -239,7 +239,7 @@ MapVis.prototype.getDisplayData = function(){
             <span><b>Day of Week:</b> " + feature.properties.dow +"</span> <br>\
             <span><b>Time:</b> " + feature.properties.time +"</span> <br>"
 
-            one_circle = L.circle(latlng, 20, {className: key})
+            one_circle = L.circle(latlng, 40, {className: key})
                               .bindPopup(content);
             return one_circle
           }

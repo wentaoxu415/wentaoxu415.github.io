@@ -545,6 +545,7 @@ BarVis.prototype.initVis = function(){
     .scale(this.x)
     .orient('bottom')
 
+
   this.yAxis = d3.svg.axis()
     .scale(this.y)
     .orient('left')
