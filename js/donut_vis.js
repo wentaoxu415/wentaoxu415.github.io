@@ -87,7 +87,7 @@ DonutVis.prototype.zeroVis = function(){
   d3.select('#donut_population').html(comma(this.population[district]) + ' (2013)');
   d3.select('#donut_capita').html(capita(this.getCrimesPerCapita(district)) + ' (per 1000 People)');
   d3.select('#relative_risk').html(capita(this.getRelativeRisk(district)));
-  d3.select('.svg-container').remove();
+  d3.select('#donut_container').remove();
 
   this.state_map.zero_vis = true;
 
@@ -246,10 +246,9 @@ DonutVis.prototype.updateVis = function(){
 
   this.svg = d3.select('#donut_chart')
     .append('div')
+    .attr("id", "donut_container")
     .classed("svg-container", true)
     .append('svg')
-    // .attr('width', this.width)
-    // .attr('height', this.height)
     .attr("viewBox", "0 0 " + (this.width)+ " " + (this.height))
     .attr("preserveAspectRatio", "xMinYMin meet")
     .classed("svg-content-responsive", true)

@@ -3,7 +3,7 @@
 BarVis = function(parent_element, population, district, filtered_data, state_map){
   this.parent_element = parent_element;
   this.population = population;
-  this.district_data = district;
+  this.distrct_data = district;
   this.filtered_data = filtered_data;
   this.display_data = jQuery.extend(true, {}, filtered_data);
   this.state_map = state_map;
@@ -17,7 +17,7 @@ BarVis = function(parent_element, population, district, filtered_data, state_map
 BarVis.prototype.countCrimes = function(){     
   var that = this;
   var zip, key, index, crime, y0, dataset;
-  dataset = new Array();
+  dataset = [];
 
   for (zip in this.population){
     this.crime_stats[zip] = {}
@@ -41,7 +41,7 @@ BarVis.prototype.countCrimes = function(){
       })
     }
   }
-  
+
   index = 0;
   for (key in this.crime_stats){
     if (key != 'city' && key != 'N/A'){
@@ -73,10 +73,10 @@ BarVis.prototype.countPerCapita = function(){
 }
 
 BarVis.prototype.countDayOfWeek = function(){
-  var that = this, time, zip;
-  var dataset = new Array();
-  var display_dataset = new Array();
-  var dow_map = new Array();
+  var that = this;
+  var time, zip, dataset, display_dataset, dow_map, convert, day, crime, location, final_dataset, idx, y0;
+  dataset = [];
+  display_dataset = [];
   dow_map = { 
     'Mon': 1,
     'Tue': 2,
@@ -94,19 +94,19 @@ BarVis.prototype.countDayOfWeek = function(){
     'Friday': 'Fri',
     'Saturday': 'Sat',
     'Sunday': 'Sun',
-  };
+  }
 
-  for (var day in dow_map){
-   dataset[day] = new Array();
-    for (var crime in this.state_map.crime_type){
+  for (day in dow_map){
+   dataset[day] = [];
+    for (crime in this.state_map.crime_type){
       if (this.state_map.crime_type.hasOwnProperty(crime)){
        dataset[day][crime] = 0   
       }
     }
   }
 
-  var location = this.state_map.location;
-  for (var crime in this.filtered_data){
+  location = this.state_map.location;
+  for (crime in this.filtered_data){
     if (this.state_map.crime_type[crime]){
       this.filtered_data[crime].features.forEach(function(d, i){
         zip = d.properties.zip;
@@ -118,11 +118,11 @@ BarVis.prototype.countDayOfWeek = function(){
     }
   }
 
-  var final_dataset = new Array();
-  var idx = 0;
-  for (var day in dataset){
-    var y0 = 0;
-    final_dataset[idx] = new Object();
+  final_dataset = [];
+  idx = 0;
+  for (day in dataset){
+    y0 = 0;
+    final_dataset[idx] = {};
     final_dataset[idx].key = day; 
     final_dataset[idx].val = that.color.domain().map(function(name){
       return {key: day, name: name, y0:y0, y1: y0 += +dataset[day][name] }
@@ -136,22 +136,22 @@ BarVis.prototype.countDayOfWeek = function(){
 
 BarVis.prototype.countHourOfDay = function(){
   var that = this;
-  var dataset = new Array();
-  var final_dataset = new Array();
-  var zip;
-  var zero = d3.format("02d");
-  var convertHour = d3.time.format("%H");
-  var parseHour = d3.time.format("%H:%M").parse;
+  var dataset, final_dataset, zip, zero, convertHour, parseHour, i, key, location, idx, hour, y0;
+  dataset = [];
+  final_dataset = [];
+  zero = d3.format("02d");
+  convertHour = d3.time.format("%H");
+  parseHour = d3.time.format("%H:%M").parse;
   
-  for (var i = 0; i < 24; i++){
-    dataset[zero(i)] = new Array();
-    for (var key in this.state_map.crime_type){
+  for (i = 0; i < 24; i++){
+    dataset[zero(i)] = [];
+    for (key in this.state_map.crime_type){
       dataset[zero(i)][key] = 0
     }
   }
 
-  var location = this.state_map.location;
-  for (var key in this.filtered_data){
+  location = this.state_map.location;
+  for (key in this.filtered_data){
     if(this.state_map.crime_type[key]){
       this.filtered_data[key].features.forEach(function(d, i){
         if (location === 'city' || location === d.properties.zip){
@@ -162,11 +162,11 @@ BarVis.prototype.countHourOfDay = function(){
     }
   }
 
-  var idx = 0;
-  for (var i = 0; i < 24; i++){
-    var hour = zero(i);
-    var y0 = 0;
-    final_dataset[idx] = new Object()
+  idx = 0;
+  for (i = 0; i < 24; i++){
+    hour = zero(i);
+    y0 = 0;
+    final_dataset[idx] = {};
     final_dataset[idx].key = hour;
     final_dataset[idx].val = that.color.domain().map(function(name){
       return {key: hour, name: name, y0:y0, y1: y0 += +dataset[hour][name] }
@@ -180,7 +180,7 @@ BarVis.prototype.countHourOfDay = function(){
 
 BarVis.prototype.getDisplayData = function(){
   var tab, dataset;
-  tab = this.state_map.barTab;
+  tab = this.state_map.bar_tab;
   if (tab === 'crime_stat'){
     this.display_data = this.countCrimes();
   }
@@ -203,11 +203,18 @@ BarVis.prototype.onTypeChange = function(state_map){
 
 BarVis.prototype.onLocationChange = function(state_map){
   var that = this;
+  var tab;
+  
   this.state_map = state_map;
-  var tab = this.state_map.barTab;
+  tab = this.state_map.bar_tab;
+  
   if (tab === 'crime_stat' || tab === 'per_capita'){
-    this.bar.classed('test_border', function(d)
-      { if(d.key == that.state_map.location) return true;})
+    if (this.crime_stats[this.state_map.location]['total'] > 0){
+      this.bar.classed('test_border', function(d)
+        { if((d.key == that.state_map.location) && (d.total > 0)) return true;
+        }
+      )
+    }
   }
   else if (tab === 'day_of_week' || tab === 'hour_of_day'){
     this.updateVis();
@@ -229,9 +236,10 @@ BarVis.prototype.onTabChange = function(state_map){
 //-------------------- BEGIN UPDATE METHODS ----------------------------------
 BarVis.prototype.updateVis = function(){
   var that = this;
-  var decimal = d3.format('.2f');
-  var tab = this.state_map.barTab;
-  var expand = {
+  var decimal, tab, expand, tip, count, label_key, label_val;
+  decimal = d3.format('.2f');
+  tab = this.state_map.bar_tab;
+  expand = {
     'Mon':'Monday',
     'Tue': 'Tuesday',
     'Wed': 'Wednesday', 
@@ -240,6 +248,7 @@ BarVis.prototype.updateVis = function(){
     'Sat': 'Saturday',
     'Sun':'Sunday'
   }
+  
   this.svg.selectAll(".g")
     .remove();
 
@@ -271,25 +280,24 @@ BarVis.prototype.updateVis = function(){
     this.x.domain(d3.keys(expand))
   }
   else{
-    var temp = this.display_data;
-    this.x.domain(temp.map(function(d){return d.key;}))
+    this.x.domain(this.display_data.map(function(d){return d.key}))
   }
   this.y.domain([0, d3.max(this.display_data, function(d){return d.total;})])
   
 
-  var tip = d3.tip()
+  tip = d3.tip()
     .attr('class', 'd3-tip')
     .offset([-10, 0])
     .html(function(d){
-      var count = d.y1 - d.y0;
-      var label_key, label_val;
+      count = d.y1 - d.y0;
+      label_key, label_val;
       if (tab === 'crime_stat'){
         label_key = 'District: '
-        label_val = that.district_data[d.key]
+        label_val = that.distrct_data[d.key]
       }
       else if (tab === 'per_capita'){
         label_key = 'District: '
-        label_val = that.district_data[d.key]
+        label_val = that.distrct_data[d.key]
         count = decimal(count);
       }
       else if (tab === 'day_of_week'){
@@ -335,6 +343,7 @@ BarVis.prototype.updateVis = function(){
     .on('mouseover', tip.show)
     .on('mouseout', tip.hide)
     .style('fill', function(d){return that.color(d.name);});
+  
 }
 
 //-------------------- END UPDATE METHODS ------------------------------------
@@ -345,10 +354,10 @@ BarVis.prototype.initVis = function(){
   this.margin = {top: 0, right: 0, bottom: 20, left: 40}
   
   this.width = parseInt(d3.select("#bar_chart").style("width")) 
-  - this.margin.left - this.margin.right;
+    - this.margin.left - this.margin.right;
 
   this.height = parseInt(d3.select("#bar_chart").style("height")) 
-  - this.margin.top - this.margin.bottom;
+    - this.margin.top - this.margin.bottom;
 
   this.x = d3.scale.ordinal()
     .rangeRoundBands([0, this.width], .1);
@@ -364,8 +373,6 @@ BarVis.prototype.initVis = function(){
     .append('div')
     .classed('svg-container', true)
     .append("svg")
-    // .attr('width', this.width)
-    // .attr('height', this.height)
     .attr("preserveAspectRatio", "xMinYMin meet")
     .attr("viewBox", "0 0 " + (this.width+50)+ " " + (this.height+20))
     .classed("svg-content-responsive", true)
@@ -387,6 +394,5 @@ BarVis.prototype.initVis = function(){
     .text('Crime Incidents')
 
   this.updateVis();
-
 }
 //-------------------- END PUBLIC METHODS --------------------------------  
