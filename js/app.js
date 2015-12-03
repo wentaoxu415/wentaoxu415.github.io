@@ -159,8 +159,8 @@ function initModule(error, geography, population, districts, center, assault, bu
             district_data, center_data, original_data, state_map, event_handler);
   donut_vis = new DonutVis(d3.select("#donut_vis"), population_data, 
             district_data, original_data, state_map);
-  // bar_vis = new BarVis(d3.select("#bar_vis"), populationData, 
-  //           districtData, original_data, state_map);
+  bar_vis = new BarVis(d3.select("#bar_vis"), population_data, 
+            district_data, original_data, state_map);
   // line_vis = new LineVis(d3.select("#line_chart"), populationData, 
   //           districtData, original_data, state_map);
 
@@ -169,13 +169,13 @@ function initModule(error, geography, population, districts, center, assault, bu
   $(event_handler).bind("locationChanged", function(event, location){
     updateLocation(location);
     donut_vis.onLocationChange(state_map);
-    // bar_vis.onLocationChange(state_map);
+    bar_vis.onLocationChange(state_map);
     // line_vis.onLocationChange(state_map);
   })
 
   $(event_handler).bind('typeChanged', function(event){
     donut_vis.onTypeChange(state_map);
-    // bar_vis.onTypeChange(state_map);
+    bar_vis.onTypeChange(state_map);
     // line_vis.onTypeChange(state_map);
   })
 
@@ -184,14 +184,14 @@ function initModule(error, geography, population, districts, center, assault, bu
     setTimeout(function(){
       map_vis.onTimeChange(filtered_data);},10);
       donut_vis.onTimeChange(state_map, filtered_data);
-    // bar_vis.onTimeChange(state_map, filtered_data);
+      bar_vis.onTimeChange(state_map, filtered_data);
     // line_vis.onTimeChange(state_map, filtered_data);
   })
 
-  // $('a[data-toggle="bar"]').on('click', function (e) {
-  //   updateBarTab(e.target.id);
-  //   bar_vis.onTabChange(state_map);
-  // });
+  $('a[data-toggle="bar"]').on('click', function (e) {
+    updateBarTab(e.target.id);
+    bar_vis.onTabChange(state_map);
+  });
 
   // $('a[data-toggle="line"]').on('click', function (e) {
   //   updateLineTab(e.target.id);
