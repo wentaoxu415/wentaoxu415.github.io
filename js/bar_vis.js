@@ -41,6 +41,7 @@ BarVis.prototype.countCrimes = function(){
       })
     }
   }
+  
   index = 0;
   for (key in this.crime_stats){
     if (key != 'city' && key != 'N/A'){
@@ -270,7 +271,8 @@ BarVis.prototype.updateVis = function(){
     this.x.domain(d3.keys(expand))
   }
   else{
-    this.x.domain(this.display_data.map(function(d){return d.key}))
+    var temp = this.display_data;
+    this.x.domain(temp.map(function(d){return d.key;}))
   }
   this.y.domain([0, d3.max(this.display_data, function(d){return d.total;})])
   
