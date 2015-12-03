@@ -725,8 +725,6 @@ LineVis.prototype.initVis = function(){
     .append('div')
     .classed('svg-container', true)
     .append('svg')
-    // .attr('width', this.width + this.margin.left + this.margin.right)
-    // .attr('height', this.height)
     .attr("preserveAspectRatio", "xMinYMin meet")
     .attr("viewBox", "0 0 " + (this.width+50)+ " " + (this.height+20))
     .classed("svg-content-responsive", true)
