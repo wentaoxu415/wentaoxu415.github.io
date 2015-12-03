@@ -527,39 +527,53 @@ paper-checkbox {
   }
 
 #assault_label{
+  border-radius: 25px;
   background-color: #fdb462;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 #burglary_label{
+  border-radius: 25px;
   background-color: #b3de69;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 #drug_label{
+  border-radius: 25px;
   background-color: #8dd3c7;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 #homicide_label{
+  border-radius: 25px;
   background-color: #ffffb3;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 #robbery_label{
+  border-radius: 25px;
   background-color: #fccde5;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 #sexOffense_label{
+  border-radius: 25px;
   background-color: #bebada;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 #weaponLaw_label{
+  border-radius: 25px;
   background-color: #bc80bd;
   width: 120px;
   padding-left: 10px;
+  margin-left: -10px;
 }
 
 #donut_chart{
