@@ -1,6 +1,20 @@
 
 /*-------------------------BEGIN MODULE OBJECT------------------------------*/
 //Global variables;
+var map_vars = {
+  "map": null,
+  "crime_stats": null,
+  "population": null,
+  "district_name": null,
+  "center_location": null,
+  "state_map": null,
+  "event_handler": null,
+  "geography_data": null,
+  "num_markers": null,
+  "num_marker_layers": null,
+  "prev_district": null
+};
+
 var Map, crimeStats, population, districtName, centerLocation, stateMap, 
 eventHandler, geographyData, numMarkers, numMarkerLayers, prev_district;
 
