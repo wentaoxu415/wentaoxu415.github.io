@@ -95,7 +95,7 @@ DonutVis.prototype.zeroVis = function(){
 
 DonutVis.prototype.updateVis = function(){
   var that = this, capita, comma, district, total, percent, height, offset, 
-  horz, vert, i;
+  horz, vert;
 
   capita = d3.format(".2f"); 
   comma = d3.format("0,000");
@@ -109,7 +109,6 @@ DonutVis.prototype.updateVis = function(){
     this.state_map.zero_vis = false;
   }
   else{
-    console.log("hey");  
     d3.select('#donut_location').html('<b><u>'+this.district_name[district]+'</u></b>');
     d3.select('#donut_crimes').html(this.crime_stats[district]['total'])
     d3.select('#donut_population').html(comma(this.population[district]) + ' (2013)');
@@ -177,7 +176,7 @@ DonutVis.prototype.updateVis = function(){
       .attr('class', 'percent');
 
     function arcTween(a) {
-      i = d3.interpolate(this._current, a);
+      var i = d3.interpolate(this._current, a);
       this._current = i(0);
       return function(t) {
         return that.arc(i(t));
