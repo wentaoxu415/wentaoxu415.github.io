@@ -1,13 +1,13 @@
 //-------------------- BEGIN MODULE SCOPE VARIABLES --------------------------
-LineVis = function(_parentElement, _population, _district, _filteredData, _stateMap){
-  this.parentElement = _parentElement;
-  this.districtData = _district;
-  this.filteredData = _filteredData;
-  this.displayData = jQuery.extend(true, {}, _filteredData);
-  this.stateMap = _stateMap;
-  this.periodTotal = 0;
+LineVis = function(parent_element, population, district, filtered_data, state_map){
+  this.parent_element = parent_element;
+  this.district_data = district;
+  this.filtered_data = filtered_data;
+  this.display_data = jQuery.extend(true, {}, filtered_data);
+  this.state_map = state_map;
+  this.period_total = 0;
   this.initVis();
-  this.populationData = {
+  this.population_data = {
   "94105": "5846",
   "94107": "26599",
   "94108": "13768",
@@ -50,8 +50,8 @@ LineVis.prototype.countCrimes = function(){
 
 
   dataset = new Object();
-  start_date = new Date(this.stateMap.startDate);
-  end_date = new Date(this.stateMap.endDate);
+  start_date = new Date(this.state_map.start_date);
+  end_date = new Date(this.state_map.end_date);
 
   is_period_long = this.isPeriodLong();
 
@@ -73,14 +73,14 @@ LineVis.prototype.countCrimes = function(){
     count_data[d.date] = new Object();
     count_data[d.date].date = d.date;
     count_data[d.date].total = 0;
-    for (key in that.stateMap.crimeType){
+    for (key in that.state_map.crime_type){
       count_data[d.date][key] = 0;
     }
   })
-  location = this.stateMap.location;
-  for (key in this.stateMap.crimeType){
-    if (key in this.filteredData && this.stateMap.crimeType[key]){
-      crime = this.filteredData[key].features;
+  location = this.state_map.location;
+  for (key in this.state_map.crime_type){
+    if (key in this.filtered_data && this.state_map.crime_type[key]){
+      crime = this.filtered_data[key].features;
 
       crime.forEach(function(d, i){
         if (location === 'city' || location === d.properties.zip){
@@ -97,7 +97,7 @@ LineVis.prototype.countCrimes = function(){
     }
   }
 
-  this.periodTotal = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
+  this.period_total = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
 
   var array = d3.keys(count_data).map(function (date){return count_data[date];})
 
@@ -105,7 +105,7 @@ LineVis.prototype.countCrimes = function(){
     .values(function(d){return d.values;})
   
   if (is_period_long){
-    final_dataset = stack(d3.keys(this.stateMap.crimeType).map(function(name){
+    final_dataset = stack(d3.keys(this.state_map.crime_type).map(function(name){
       return {
         name: name,
         values: array.map(function(d){
@@ -115,7 +115,7 @@ LineVis.prototype.countCrimes = function(){
     }));
   }
   else{
-    final_dataset = stack(d3.keys(this.stateMap.crimeType).map(function(name){
+    final_dataset = stack(d3.keys(this.state_map.crime_type).map(function(name){
       return {
         name: name,
         values: array.map(function(d){
@@ -140,8 +140,8 @@ LineVis.prototype.countDistrict = function(){
 
 
   dataset = new Object();
-  start_date = new Date(this.stateMap.startDate);
-  end_date = new Date(this.stateMap.endDate);
+  start_date = new Date(this.state_map.start_date);
+  end_date = new Date(this.state_map.end_date);
 
   is_period_long = this.isPeriodLong();
 
@@ -163,16 +163,16 @@ LineVis.prototype.countDistrict = function(){
     count_data[d.date] = new Object();
     count_data[d.date].date = d.date;
     count_data[d.date].total = 0;
-    for (key in that.populationData){
+    for (key in that.population_data){
       if (key != 'city'){
         count_data[d.date][key] = 0;
       }
     }
   })
   
-  for (key in this.stateMap.crimeType){
-    if (key in this.filteredData && this.stateMap.crimeType[key]){
-      crime = this.filteredData[key].features;
+  for (key in this.state_map.crime_type){
+    if (key in this.filtered_data && this.state_map.crime_type[key]){
+      crime = this.filtered_data[key].features;
       crime.forEach(function(d, i){
         location = d.properties.zip;
         if (location != 'N/A'){
@@ -189,7 +189,7 @@ LineVis.prototype.countDistrict = function(){
     }
   }
 
-  this.periodTotal = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
+  this.period_total = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
 
   var array = d3.keys(count_data).map(function (date){return count_data[date];})
 
@@ -197,7 +197,7 @@ LineVis.prototype.countDistrict = function(){
     .values(function(d){return d.values;})
   
   if (is_period_long){
-    final_dataset = stack(d3.keys(this.populationData).map(function(name){
+    final_dataset = stack(d3.keys(this.population_data).map(function(name){
       
       if (name != 'city'){
         return {
@@ -210,7 +210,7 @@ LineVis.prototype.countDistrict = function(){
     }));
   }
   else{
-    final_dataset = stack(d3.keys(this.populationData).map(function(name){
+    final_dataset = stack(d3.keys(this.population_data).map(function(name){
       if (name != 'city'){
         return {
           name: name,
@@ -237,8 +237,8 @@ LineVis.prototype.countDayOfWeek = function(){
 
 
   dataset = new Object();
-  start_date = new Date(this.stateMap.startDate);
-  end_date = new Date(this.stateMap.endDate);
+  start_date = new Date(this.state_map.start_date);
+  end_date = new Date(this.state_map.end_date);
 
   is_period_long = this.isPeriodLong();
 
@@ -277,10 +277,10 @@ LineVis.prototype.countDayOfWeek = function(){
     }
   })
   
-  location = this.stateMap.location;
-  for (key in this.stateMap.crimeType){
-    if (key in this.filteredData && this.stateMap.crimeType[key]){
-      crime = this.filteredData[key].features;
+  location = this.state_map.location;
+  for (key in this.state_map.crime_type){
+    if (key in this.filtered_data && this.state_map.crime_type[key]){
+      crime = this.filtered_data[key].features;
       crime.forEach(function(d, i){
         dow = d.properties.dow;
         if (location === 'city' || location === d.properties.zip){
@@ -297,7 +297,7 @@ LineVis.prototype.countDayOfWeek = function(){
     }
   }
 
-  this.periodTotal = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
+  this.period_total = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
 
   var array = d3.keys(count_data).map(function (date){return count_data[date];})
 
@@ -346,8 +346,8 @@ LineVis.prototype.countHourOfDay = function(){
   parse_hour = d3.time.format("%H:%M").parse;
   var zero = d3.format("02d");
   dataset = new Object();
-  start_date = new Date(this.stateMap.startDate);
-  end_date = new Date(this.stateMap.endDate);
+  start_date = new Date(this.state_map.start_date);
+  end_date = new Date(this.state_map.end_date);
 
   is_period_long = this.isPeriodLong();
 
@@ -379,10 +379,10 @@ LineVis.prototype.countHourOfDay = function(){
     }
   })
   
-  location = this.stateMap.location;
-  for (key in this.stateMap.crimeType){
-    if (key in this.filteredData && this.stateMap.crimeType[key]){
-      crime = this.filteredData[key].features;
+  location = this.state_map.location;
+  for (key in this.state_map.crime_type){
+    if (key in this.filtered_data && this.state_map.crime_type[key]){
+      crime = this.filtered_data[key].features;
       crime.forEach(function(d, i){
         var hour = get_hour(parse_hour(d.properties.time));
         if (location === 'city' || location === d.properties.zip){
@@ -399,7 +399,7 @@ LineVis.prototype.countHourOfDay = function(){
     }
   }
 
-  this.periodTotal = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
+  this.period_total = d3.max(d3.keys(count_data).map(function(key){return count_data[key].total;}))
 
   var array = d3.keys(count_data).map(function (date){return count_data[date];})
 
@@ -442,8 +442,8 @@ LineVis.prototype.isPeriodLong = function(){
   var start_date, end_date, years_between, ms_per_year, ms_between, 
   criteria_length;
 
-  start_date = new Date(this.stateMap.startDate);
-  end_date = new Date(this.stateMap.endDate);
+  start_date = new Date(this.state_map.start_date);
+  end_date = new Date(this.state_map.end_date);
   ms_per_year =1000*60*60*24*365;
   ms_between = end_date.getTime() - start_date.getTime();
   years_between = ms_between/ms_per_year;
@@ -454,39 +454,39 @@ LineVis.prototype.isPeriodLong = function(){
 //-------------------- END HELPER METHODS ------------------------------------
 //-------------------- BEGIN EVENT HANDLERS ----------------------------------
 LineVis.prototype.onTypeChange = function(state_map){
-  this.stateMap = state_map;
+  this.state_map = state_map;
   this.updateVis();
 }
 
 LineVis.prototype.onLocationChange = function(state_map){
-  this.stateMap = state_map;
+  this.state_map = state_map;
   this.updateVis();
 }
 
 LineVis.prototype.onTimeChange = function(state_map, filtered_data){
-  this.stateMap = state_map;
-  this.filteredData = filtered_data;
+  this.state_map = state_map;
+  this.filtered_data = filtered_data;
   this.updateVis();
 }
 
 LineVis.prototype.onTabChange = function(state_map){
-  this.stateMap = state_map;
+  this.state_map = state_map;
   this.updateVis();
 }
 
 LineVis.prototype.getDisplayData = function(){
-  var tab = this.stateMap.lineTab;
+  var tab = this.state_map.line_tab;
   if (tab === 'crime_type'){
-    this.displayData = this.countCrimes();
+    this.display_data = this.countCrimes();
   }
   else if (tab === 'district'){
-    this.displayData = this.countDistrict();
+    this.display_data = this.countDistrict();
   }
   else if (tab === 'day_of_week'){
-   this.displayData = this.countDayOfWeek(); 
+   this.display_data = this.countDayOfWeek(); 
   }
   else if (tab === 'hour_of_day'){
-   this.displayData = this.countHourOfDay(); 
+   this.display_data = this.countHourOfDay(); 
   }
 }
 //-------------------- END EVENT HANDLERS ------------------------------------
@@ -502,12 +502,12 @@ LineVis.prototype.updateVis = function(){
   d3.select('.remove')
     .remove();
 
-  this.color.domain(d3.keys(this.stateMap.crimeType))
+  this.color.domain(d3.keys(this.state_map.crime_type))
 
   this.getDisplayData();
 
-  start_date = new Date(this.stateMap.startDate);
-  end_date = new Date(this.stateMap.endDate);
+  start_date = new Date(this.state_map.start_date);
+  end_date = new Date(this.state_map.end_date);
   is_period_long = this.isPeriodLong();
   if (is_period_long){
     period = d3.time.years(start_date, end_date)
@@ -517,7 +517,7 @@ LineVis.prototype.updateVis = function(){
   }
 
   this.x.domain(d3.extent(period, function(d){return d}));
-  this.y.domain([0, this.periodTotal]);
+  this.y.domain([0, this.period_total]);
 
   var tooltip = d3.select('#line_chart')
     .append('div')
@@ -528,7 +528,7 @@ LineVis.prototype.updateVis = function(){
   
 
   this.crime = this.svg.selectAll('.crime')
-    .data(this.displayData)
+    .data(this.display_data)
     .enter().append('g')
     .attr('class', 'crime')
 
@@ -537,7 +537,7 @@ LineVis.prototype.updateVis = function(){
     .attr('class', 'area')
     .attr('d', function(d){return that.area(d.values)})
     
-  var tab = this.stateMap.lineTab;
+  var tab = this.state_map.line_tab;
   var day_color = d3.scale.category20();
   var hour_color = d3.scale.ordinal()
                     .range([])
@@ -622,7 +622,7 @@ LineVis.prototype.updateVis = function(){
       if (tab === 'district'){
       tooltip
       .html( "<p><strong>Period: </strong>" + period + 
-            "<br><strong>"+name_label +": </strong>" + that.districtData[d.name] + 
+            "<br><strong>"+name_label +": </strong>" + that.district_data[d.name] + 
             "<br><strong>Incidents: </strong>" + incidents + "</p>" ).style("visibility", "visible");
       }
       else{
@@ -644,7 +644,7 @@ LineVis.prototype.updateVis = function(){
       if (tab === 'district'){
       tooltip
       .html( "<p><strong>Period: </strong>" + period + 
-            "<br><strong>"+name_label +": </strong>" + that.districtData[d.name] + 
+            "<br><strong>"+name_label +": </strong>" + that.district_data[d.name] + 
             "<br><strong>Incidents: </strong>" + incidents + "</p>" ).style("visibility", "hidden");
       }
       else{

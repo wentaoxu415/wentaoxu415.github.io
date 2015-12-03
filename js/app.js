@@ -12,13 +12,13 @@ $(function(){
   },
   state_map = {
     "crime_type": {
-      "assault": false, 
-      "burglary": false, 
-      "drug": false, 
+      "assault": true, 
+      "burglary": true, 
+      "drug": true, 
       "homicide": true,
-      "robbery": false, 
-      "sexOffense": false, 
-      "weaponLaw": false               
+      "robbery": true, 
+      "sexOffense": true, 
+      "weaponLaw": true               
     },
     "start_date": '01/01/2015', 
     "end_date": '09/25/2015',
@@ -161,8 +161,8 @@ function initModule(error, geography, population, districts, center, assault, bu
             district_data, original_data, state_map);
   bar_vis = new BarVis(d3.select("#bar_vis"), population_data, 
             district_data, original_data, state_map);
-  // line_vis = new LineVis(d3.select("#line_chart"), populationData, 
-  //           districtData, original_data, state_map);
+  line_vis = new LineVis(d3.select("#line_chart"), population_data, 
+            district_data, original_data, state_map);
 
   
   /*---------------------------BEGIN EVENT HANDLERS---------------------------*/ 
@@ -170,13 +170,13 @@ function initModule(error, geography, population, districts, center, assault, bu
     updateLocation(location);
     donut_vis.onLocationChange(state_map);
     bar_vis.onLocationChange(state_map);
-    // line_vis.onLocationChange(state_map);
+    line_vis.onLocationChange(state_map);
   })
 
   $(event_handler).bind('typeChanged', function(event){
     donut_vis.onTypeChange(state_map);
     bar_vis.onTypeChange(state_map);
-    // line_vis.onTypeChange(state_map);
+    line_vis.onTypeChange(state_map);
   })
 
   $(event_handler).bind('timeChanged', function(event){
@@ -185,7 +185,7 @@ function initModule(error, geography, population, districts, center, assault, bu
       map_vis.onTimeChange(filtered_data);},10);
       donut_vis.onTimeChange(state_map, filtered_data);
       bar_vis.onTimeChange(state_map, filtered_data);
-    // line_vis.onTimeChange(state_map, filtered_data);
+      line_vis.onTimeChange(state_map, filtered_data);
   })
 
   $('a[data-toggle="bar"]').on('click', function (e) {
@@ -193,10 +193,10 @@ function initModule(error, geography, population, districts, center, assault, bu
     bar_vis.onTabChange(state_map);
   });
 
-  // $('a[data-toggle="line"]').on('click', function (e) {
-  //   updateLineTab(e.target.id);
-  //   line_vis.onTabChange(state_map);
-  // });
+  $('a[data-toggle="line"]').on('click', function (e) {
+    updateLineTab(e.target.id);
+    line_vis.onTabChange(state_map);
+  });
 
   $(function(){
     $('li').click(function(){
@@ -233,9 +233,6 @@ function initModule(error, geography, population, districts, center, assault, bu
       timeZone: 0
       }, 
       function(_start_date, _end_date) {
-        var start_date, end_date;
-        // start_date = _start_date.format('MM/DD/YYYY'), 
-        // end_date = _end_date.format('MM/DD/YYYY');
         start_date = new Date(_start_date);
         end_date = new Date(_end_date);
         updateDate(start_date, end_date);
