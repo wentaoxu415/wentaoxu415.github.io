@@ -368,6 +368,9 @@ MapVis.prototype.initVis = function(){
         $(eventHandler).trigger("locationChanged", district);
         that.map.on('ready', that.map.spin(false));
       }
+      else{
+        that.map.on('ready', that.map.spin(false)); 
+      }
     }, 10)
   }
     
