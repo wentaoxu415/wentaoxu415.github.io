@@ -2,9 +2,8 @@
 /*-------------------------BEGIN MODULE OBJECT------------------------------*/
 //Global variables;
 var map_vars = {
-  "map": null,
   "crime_stats": null,
-  "population": null,
+  "population_stats": null,
   "district_name": null,
   "center_location": null,
   "state_map": null,
@@ -15,18 +14,15 @@ var map_vars = {
   "prev_district": null
 };
 
-var Map, crimeStats, population, districtName, centerLocation, stateMap, 
-eventHandler, geographyData, numMarkers, numMarkerLayers, prev_district;
-
-MapVis = function(_parentElement, _geography, _population, _districts, _center, _originalData, _stateMap, _eventHandler){
-  this.parentElement = _parentElement;
-  geographyData = _geography;
-  population = _population;
-  districtName = _districts;
-  centerLocation = _center;
-  this.filteredData = jQuery.extend(true, {}, _originalData);
-  stateMap = _stateMap;
-  eventHandler = _eventHandler;
+MapVis = function(parent_element, geography, population, districts, center, original_data, state_map, event_handler){
+  this.parentElement = parent_element;
+  map_vars["geography_data"] = geography;
+  map_vars["population_stats"] = population;
+  map_vars["district_name"] = districts;
+  map_vars["center_location"] = center;
+  this.filteredData = jQuery.extend(true, {}, original_data);
+  map_vars["state_map"] = state_map;
+  map_vars["event_handler"] = event_handler;
   this.displayLayers = [];
   this.countCrimes();
   this.initVis();
@@ -40,31 +36,31 @@ MapVis.prototype.countCrimes = function(){
   var that = this;
   var zip, key, crime;
 
-  crimeStats = {};
-  for (zip in population){
-    crimeStats[zip] = {}
-    crimeStats[zip]['total'] = 0;
-    for (key in stateMap.crimeType){
-      crimeStats[zip][key] = 0;
+  map_vars["crime_stats"] = {};
+  for (zip in map_vars["population_stats"]){
+    map_vars["crime_stats"][zip] = {}
+    map_vars["crime_stats"][zip]['total'] = 0;
+    for (key in map_vars["state_map"].crimeType){
+      map_vars["crime_stats"][zip][key] = 0;
     }
   }
   
-  crimeStats['N/A'] = {};
-  crimeStats['N/A']['total'] = 0;
+  map_vars["crime_stats"]['N/A'] = {};
+  map_vars["crime_stats"]['N/A']['total'] = 0;
   
-  for (key in stateMap.crimeType){  
-    crimeStats['N/A'][key] = 0;
+  for (key in map_vars["state_map"].crimeType){  
+    map_vars["crime_stats"]['N/A'][key] = 0;
   }
 
-  for (key in stateMap.crimeType){
-    if (key in this.filteredData && stateMap.crimeType[key]){
+  for (key in map_vars["state_map"].crimeType){
+    if (key in this.filteredData && map_vars["state_map"].crimeType[key]){
       crime = this.filteredData[key].features;
       crime.forEach(function(d, i){
         zip = d.properties.zip;
-        crimeStats[zip][key] += 1
-        crimeStats[zip]['total'] += 1
-        crimeStats['city'][key] += 1
-        crimeStats['city']['total'] += 1
+        map_vars["crime_stats"][zip][key] += 1
+        map_vars["crime_stats"][zip]['total'] += 1
+        map_vars["crime_stats"]['city'][key] += 1
+        map_vars["crime_stats"]['city']['total'] += 1
       })
     }
   }
@@ -75,45 +71,45 @@ MapVis.prototype.countCrimes = function(){
 /*-------------------------BEGIN EVENT HANDLERS-----------------------------*/
 
 MapVis.prototype.onHeatChange = function(state_map){
-  stateMap = state_map; 
+  map_vars["state_map"] = state_map; 
   this.setLegend();
   this.displayLayers['neighborhood'].setStyle(getStyle);
 }
 MapVis.prototype.onTypeChange = function(bool, crime, state_map){
   var that = this;
-  stateMap = state_map;
+  map_vars["state_map"] = state_map;
 
   this.countCrimes();  
   
-  for (key in centerLocation){
+  for (key in map_vars["center_location"]){
     var each_icon = L.AwesomeMarkers.icon({
       icon: '',
       markerColor: 'darkblue',
       prefix: 'fa',
       extraClasses: 'hey',
-      html: crimeStats[key]['total']
+      html: map_vars["crime_stats"][key]['total']
     });
-    numMarkers[key] = each_icon;
+    map_vars["num_markers"][key] = each_icon;
   
-    this.map.removeLayer(numMarkerLayers[key]);
-    var each_marker = L.marker(centerLocation[key], {icon: numMarkers[key]})
-    numMarkerLayers[key] = each_marker;
-    this.map.addLayer(numMarkerLayers[key])
+    this.map.removeLayer(map_vars["num_marker_layers"][key]);
+    var each_marker = L.marker(map_vars["center_location"][key], {icon: map_vars["num_markers"][key]})
+    map_vars["num_marker_layers"][key] = each_marker;
+    this.map.addLayer(map_vars["num_marker_layers"][key])
   }
-  var district = stateMap.location
+  var district = map_vars["state_map"].location
   if (district != 'city'){
     if (bool){
-      this.map.removeLayer(numMarkerLayers[district])  
+      this.map.removeLayer(map_vars["num_marker_layers"][district])  
       this.map.addLayer(this.displayLayers[crime][district])
     }
     else{
-      this.map.removeLayer(numMarkerLayers[district])  
+      this.map.removeLayer(map_vars["num_marker_layers"][district])  
       this.map.removeLayer(this.displayLayers[crime][district])
     }
   }
   this.map.on('ready', this.map.spin(false))
 
-  $(eventHandler).trigger('typeChanged', stateMap);
+  $(map_vars["event_handler"]).trigger('typeChanged', map_vars["state_map"]);
 
   this.displayLayers['neighborhood'].setStyle(getStyle);
 }
@@ -122,40 +118,40 @@ MapVis.prototype.onTimeChange = function(_filtered_data){
   var that = this;
   this.filteredData = _filtered_data;
   for (key in that.filteredData){
-    if (stateMap.crimeType[key]){
-      if (prev_district){
-        that.map.removeLayer(that.displayLayers[key][prev_district])
+    if (map_vars["state_map"].crimeType[key]){
+      if (map_vars["prev_district"]){
+        that.map.removeLayer(that.displayLayers[key][map_vars["prev_district"]])
       }
     }
   }
   this.countCrimes();
   this.getDisplayData();
 
-  for (key in centerLocation){
+  for (key in map_vars["center_location"]){
     var each_icon = L.AwesomeMarkers.icon({
       icon: '',
       markerColor: 'darkblue',
       prefix: 'fa',
       extraClasses: 'hey',
-      html: crimeStats[key]['total']
+      html: map_vars["crime_stats"][key]['total']
     });
-    numMarkers[key] = each_icon;
-    this.map.removeLayer(numMarkerLayers[key]);
-    var each_marker = L.marker(centerLocation[key], {icon: numMarkers[key]})
-    numMarkerLayers[key] = each_marker;
-    this.map.addLayer(numMarkerLayers[key])
+    map_vars["num_markers"][key] = each_icon;
+    this.map.removeLayer(map_vars["num_marker_layers"][key]);
+    var each_marker = L.marker(map_vars["center_location"][key], {icon: map_vars["num_markers"][key]})
+    map_vars["num_marker_layers"][key] = each_marker;
+    this.map.addLayer(map_vars["num_marker_layers"][key])
   }
-  var district = stateMap.location
+  var district = map_vars["state_map"].location
   if (district != 'city'){
     for (key in that.filteredData){
-      if (stateMap.crimeType[key]){
-        if (prev_district){
-          that.map.addLayer(that.displayLayers[key][prev_district])
+      if (map_vars["state_map"].crimeType[key]){
+        if (map_vars["prev_district"]){
+          that.map.addLayer(that.displayLayers[key][map_vars["prev_district"]])
         }
       }
     }
     // Remove number marker for the current district
-    this.map.removeLayer(numMarkerLayers[district])
+    this.map.removeLayer(map_vars["num_marker_layers"][district])
   }
   this.map.on('ready', this.map.spin(false))
 
@@ -177,15 +173,15 @@ function getColor(val){
 }
 
 function getRatio(d, pop){
-  return (d/pop)/(crimeStats['city']['total']/population['city']);   
+  return (d/pop)/(map_vars["crime_stats"]['city']['total']/map_vars["population_stats"]['city']);   
 }
 
 function getStyle(feature){
   var district_crime, district_pop, ratio;
-  district_crime = crimeStats[feature.id]['total']
-  district_pop = population[feature.id]
+  district_crime = map_vars["crime_stats"][feature.id]['total']
+  district_pop = map_vars["population_stats"][feature.id]
   ratio = getRatio(district_crime, district_pop)
-  if (stateMap.heatMap){
+  if (map_vars["state_map"].heatMap){
     return {
       fillColor: getColor(ratio), 
       fillOpacity: 1,
@@ -206,17 +202,17 @@ function getStyle(feature){
   
 MapVis.prototype.returnHome = function(){
   var that = this;
-  if (prev_district){
-    this.map.addLayer(numMarkerLayers[prev_district])
+  if (map_vars["prev_district"]){
+    this.map.addLayer(map_vars["num_marker_layers"][map_vars["prev_district"]])
   }
   for (key in that.filteredData){
-    if (stateMap.crimeType[key]){
-      if (prev_district){
-        this.map.removeLayer(that.displayLayers[key][prev_district])
+    if (map_vars["state_map"].crimeType[key]){
+      if (map_vars["prev_district"]){
+        this.map.removeLayer(that.displayLayers[key][map_vars["prev_district"]])
       }
     }
   }
-  prev_district = null;
+  map_vars["prev_district"] = null;
 }
 /*-------------------------END HELPER METHODS-----------------------------*/
 MapVis.prototype.getDisplayData = function(){
@@ -225,7 +221,7 @@ MapVis.prototype.getDisplayData = function(){
   for (key in this.filteredData){
     this.displayLayers[key] = [];
     temp_data[key] = [];
-    for (zip in centerLocation){
+    for (zip in map_vars["center_location"]){
         this.displayLayers[key][zip] = []
         temp_data[key][zip] = {features: [], type: 'Feature Collection'};
     }
@@ -243,7 +239,7 @@ MapVis.prototype.getDisplayData = function(){
 
   // Format the data as circles and push them into display layer
   for (key in that.filteredData){
-    for (zip in population){
+    for (zip in map_vars["population_stats"]){
       if (zip != 'city'){
         this.displayLayers[key][zip] = L.geoJson(temp_data[key][zip], {
           pointToLayer: function(feature, latlng){
@@ -265,7 +261,7 @@ MapVis.prototype.getDisplayData = function(){
 
 MapVis.prototype.setLegend = function(){
   var that = this;
-  if (stateMap.heatMap){
+  if (map_vars["state_map"].heatMap){
     var legend = L.control({position: 'bottomright'});
     legend.onAdd = function (map) {
       var that = this;
@@ -320,7 +316,7 @@ MapVis.prototype.initVis = function(){
   home_button = L.easyButton('fa-home', function(btn){
     that.map.setView([home_location.lat, home_location.lng], home_location.zoom);
     that.returnHome();
-    $(eventHandler).trigger("locationChanged", 'city');},'Zoom To Home')
+    $(map_vars["event_handler"]).trigger("locationChanged", 'city');},'Zoom To Home')
     .addTo(this.map);
 
   
@@ -329,7 +325,7 @@ MapVis.prototype.initVis = function(){
   path = d3.geo.path().projection(transform);
   
   feature = g.selectAll("path")
-                    .data(geographyData.features)
+                    .data(map_vars["geography_data"].features)
                     .enter().append("path")
 
   this.map.on("viewreset", reset);
@@ -338,7 +334,7 @@ MapVis.prototype.initVis = function(){
 
   function reset(){
     var bounds, topLeft, bottomRight;
-    bounds = path.bounds(geographyData);
+    bounds = path.bounds(map_vars["geography_data"]);
     topLeft = bounds[0];
     bottomRight = bounds[1];
     svg.attr("width", bottomRight[0] - topLeft[0])
@@ -362,24 +358,24 @@ MapVis.prototype.initVis = function(){
       var district = e.target.feature.properties.id;
       that.map.fitBounds(e.target.getBounds());
 
-      stateMap.location = districtName[district];
-      if (district != prev_district){
-        that.map.removeLayer(numMarkerLayers[district])
-        if (prev_district){
-          that.map.addLayer(numMarkerLayers[prev_district])
+      map_vars["state_map"].location = map_vars["district_name"][district];
+      if (district != map_vars["prev_district"]){
+        that.map.removeLayer(map_vars["num_marker_layers"][district])
+        if (map_vars["prev_district"]){
+          that.map.addLayer(map_vars["num_marker_layers"][map_vars["prev_district"]])
         }
         for (key in that.filteredData){
-          if (stateMap.crimeType[key]){
-            if (prev_district){
-              that.map.removeLayer(that.displayLayers[key][prev_district])
+          if (map_vars["state_map"].crimeType[key]){
+            if (map_vars["prev_district"]){
+              that.map.removeLayer(that.displayLayers[key][map_vars["prev_district"]])
             }
-            if (crimeStats[district][key] > 0){
+            if (map_vars["crime_stats"][district][key] > 0){
               that.map.addLayer(that.displayLayers[key][district])  
             }
           }
         }
-        prev_district = district;
-        $(eventHandler).trigger("locationChanged", district);
+        map_vars["prev_district"] = district;
+        $(map_vars["event_handler"]).trigger("locationChanged", district);
         that.map.on('ready', that.map.spin(false));
       }
       else{
@@ -396,7 +392,7 @@ MapVis.prototype.initVis = function(){
 
   this.getDisplayData();
 
-  this.displayLayers["neighborhood"] = L.geoJson(geographyData, {
+  this.displayLayers["neighborhood"] = L.geoJson(map_vars["geography_data"], {
       onEachFeature: onEachFeature, 
       style: getStyle, 
       className: "neighborhood"})
@@ -404,22 +400,22 @@ MapVis.prototype.initVis = function(){
       .addTo(this.map);
 
 
-  numMarkers = []
-  for (key in centerLocation){
+  map_vars["num_markers"] = []
+  for (key in map_vars["center_location"]){
     var each_icon = L.AwesomeMarkers.icon({
       icon: '',
       markerColor: 'darkblue',
       prefix: 'fa',
-      html: crimeStats[key]['total']
+      html: map_vars["crime_stats"][key]['total']
     });
-    numMarkers[key] = each_icon;
+    map_vars["num_markers"][key] = each_icon;
   }
 
-  numMarkerLayers = [];
-  for (key in centerLocation){
-    var each_marker = L.marker(centerLocation[key], {icon: numMarkers[key]})
-    numMarkerLayers[key] = each_marker;
-    this.map.addLayer(numMarkerLayers[key])
+  map_vars["num_marker_layers"] = [];
+  for (key in map_vars["center_location"]){
+    var each_marker = L.marker(map_vars["center_location"][key], {icon: map_vars["num_markers"][key]})
+    map_vars["num_marker_layers"][key] = each_marker;
+    this.map.addLayer(map_vars["num_marker_layers"][key])
   }
 
   this.setLegend();
