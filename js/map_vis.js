@@ -40,7 +40,7 @@ MapVis.prototype.countCrimes = function(){
   for (zip in map_vars["population_stats"]){
     map_vars["crime_stats"][zip] = {}
     map_vars["crime_stats"][zip]['total'] = 0;
-    for (key in map_vars["state_map"].crimeType){
+    for (key in map_vars["state_map"].crime_type){
       map_vars["crime_stats"][zip][key] = 0;
     }
   }
@@ -48,12 +48,12 @@ MapVis.prototype.countCrimes = function(){
   map_vars["crime_stats"]['N/A'] = {};
   map_vars["crime_stats"]['N/A']['total'] = 0;
   
-  for (key in map_vars["state_map"].crimeType){  
+  for (key in map_vars["state_map"].crime_type){  
     map_vars["crime_stats"]['N/A'][key] = 0;
   }
 
-  for (key in map_vars["state_map"].crimeType){
-    if (key in this.filteredData && map_vars["state_map"].crimeType[key]){
+  for (key in map_vars["state_map"].crime_type){
+    if (key in this.filteredData && map_vars["state_map"].crime_type[key]){
       crime = this.filteredData[key].features;
       crime.forEach(function(d, i){
         zip = d.properties.zip;
@@ -118,7 +118,7 @@ MapVis.prototype.onTimeChange = function(_filtered_data){
   var that = this;
   this.filteredData = _filtered_data;
   for (key in that.filteredData){
-    if (map_vars["state_map"].crimeType[key]){
+    if (map_vars["state_map"].crime_type[key]){
       if (map_vars["prev_district"]){
         that.map.removeLayer(that.displayLayers[key][map_vars["prev_district"]])
       }
@@ -144,7 +144,7 @@ MapVis.prototype.onTimeChange = function(_filtered_data){
   var district = map_vars["state_map"].location
   if (district != 'city'){
     for (key in that.filteredData){
-      if (map_vars["state_map"].crimeType[key]){
+      if (map_vars["state_map"].crime_type[key]){
         if (map_vars["prev_district"]){
           that.map.addLayer(that.displayLayers[key][map_vars["prev_district"]])
         }
@@ -181,7 +181,7 @@ function getStyle(feature){
   district_crime = map_vars["crime_stats"][feature.id]['total']
   district_pop = map_vars["population_stats"][feature.id]
   ratio = getRatio(district_crime, district_pop)
-  if (map_vars["state_map"].heatMap){
+  if (map_vars["state_map"].heat_map){
     return {
       fillColor: getColor(ratio), 
       fillOpacity: 1,
@@ -206,7 +206,7 @@ MapVis.prototype.returnHome = function(){
     this.map.addLayer(map_vars["num_marker_layers"][map_vars["prev_district"]])
   }
   for (key in that.filteredData){
-    if (map_vars["state_map"].crimeType[key]){
+    if (map_vars["state_map"].crime_type[key]){
       if (map_vars["prev_district"]){
         this.map.removeLayer(that.displayLayers[key][map_vars["prev_district"]])
       }
@@ -261,7 +261,7 @@ MapVis.prototype.getDisplayData = function(){
 
 MapVis.prototype.setLegend = function(){
   var that = this;
-  if (map_vars["state_map"].heatMap){
+  if (map_vars["state_map"].heat_map){
     var legend = L.control({position: 'bottomright'});
     legend.onAdd = function (map) {
       var that = this;
@@ -365,7 +365,7 @@ MapVis.prototype.initVis = function(){
           that.map.addLayer(map_vars["num_marker_layers"][map_vars["prev_district"]])
         }
         for (key in that.filteredData){
-          if (map_vars["state_map"].crimeType[key]){
+          if (map_vars["state_map"].crime_type[key]){
             if (map_vars["prev_district"]){
               that.map.removeLayer(that.displayLayers[key][map_vars["prev_district"]])
             }
